@@ -50,3 +50,10 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Ignore files for specific IDE's
+*[.]idea
+#vim temporarily files
+*[.]sw[op]
+
+
