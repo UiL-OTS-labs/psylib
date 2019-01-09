@@ -1,0 +1,10 @@
+
+#define PSY_VERSION_MAJOR @PSY_VERSION_MAJOR@
+#define PSY_VERSION_MINOR @PSY_VERSION_MINOR@
+#define PSY_VERSION_MICRO @PSY_VERSION_MICRO@
+#define PSY_VERSION_STRING "@PSY_VERSION_STRING@"
+
+#cmakedefine HAVE_STDIO_H       1
+#cmakedefine HAVE_STDLIB_H      1
+#cmakedefine HAVE_STRING_H      1
+#cmakedefine HAVE_SYS_STAT_H    1

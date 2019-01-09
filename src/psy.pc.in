@@ -1,0 +1,16 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib/@PSY_LIB@
+sharedlibdir=${exec_prefix}/lib
+includedir=${prefix}/include/@PSY_LIB@
+version_major=@SEE_OBJECT_VERSION_MAJOR@
+version_minor=@SEE_OBJECT_VERSION_MINOR@
+version=@SEE_OBJECT_VERSION@
+
+Name: see-object
+Description: a utility to help with OO style programming in C
+Version: ${version}
+Requires: seeobject
+Libs: -L${libdir} -l@PSY_LIB@
+Cflags: -I${includedir}
+
