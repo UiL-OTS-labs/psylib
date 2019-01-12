@@ -11,9 +11,8 @@ configure_file(
         )
 
 
-set(PSY_SOURCES 
+set(PSY_SOURCES
     Error.c
-    #GLError.c
     psy_init.c
     Shader.c
     ShaderProgram.c
@@ -22,7 +21,6 @@ set(PSY_SOURCES
 
 set (PSY_HEADERS
     Error.h
-    #GLError.h
     psy_init.h
     Shader.h
     ShaderProgram.h
