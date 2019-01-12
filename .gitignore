@@ -56,4 +56,7 @@ dkms.conf
 #vim temporarily files
 *[.]sw[op]
 
-
+# ignore build directories
+Release/
+Debug/
+cmake-build-debug/
