@@ -18,6 +18,7 @@
 #include "psy_init.h"
 #include <see_init.h>
 #include "Error.h"
+#include "gl/GLError.h"
 #include "Window.h"
 #include <assert.h>
 #include <SDL2/SDL.h>
@@ -134,6 +135,8 @@ int psylib_init(PsyError** error)
 
     if ((ret = psy_error_init()) != 0)
         return ret;
+    if ((ret = psy_glerror_init()) != 0)
+        return ret;
     if ((ret = psy_window_init()) != 0)
         return ret;
 
@@ -148,5 +151,6 @@ void psylib_deinit()
     deinit_external_libs();
 
     psy_error_deinit();
+    psy_glerror_deinit();
     psy_window_deinit();
 }

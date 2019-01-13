@@ -17,6 +17,7 @@ set(PSY_SOURCES
     Shader.c
     ShaderProgram.c
     Window.c
+    gl/GLError.c
     )
 
 set (PSY_HEADERS
@@ -25,6 +26,7 @@ set (PSY_HEADERS
     Shader.h
     ShaderProgram.h
     Window.h
+    gl/GLError.h
     )
 
 add_library(${PSY_LIB} SHARED ${PSY_SOURCES} ${PSY_HEADERS})

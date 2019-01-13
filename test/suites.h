@@ -31,6 +31,13 @@ int add_error_suite();
 
 /**
  * \private
+ * \brief Test whether PsyGLError works
+ * @return 0 when the test is successfully registered.
+ */
+int add_glerror_suite();
+
+/**
+ * \private
  * \brief Tests whether the windowing suite is working as expected.
  *
  * @return 0 when the suite was properly registered.

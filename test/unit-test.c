@@ -40,6 +40,8 @@ int add_suites()
 {
     if (add_error_suite())
         return 1;
+    if (add_glerror_suite())
+        return 1;
     if (add_window_suite())
         return 1;
 

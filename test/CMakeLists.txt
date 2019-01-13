@@ -29,6 +29,7 @@ if (BUILD_UNIT_TESTS)
     set (UNIT_SOURCES
          unit-test.c
          error.c
+         glerror.c
          window.c
          globals.c
          )
