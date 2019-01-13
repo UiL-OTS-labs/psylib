@@ -89,6 +89,7 @@ static void window_create(void)
     CU_ASSERT_EQUAL(error, NULL);
     if (ret) {
         fprintf(stderr, "%s", see_error_msg(SEE_ERROR(error)));
+        see_object_decref(error);
         return;
     }
 
