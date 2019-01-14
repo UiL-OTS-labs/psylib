@@ -54,7 +54,6 @@ static void
 glerror_printf()
 {
     char buffer[BUFSIZ];
-    char expected[BUFSIZ];
     char *msg = buffer;
     const char* returned_msg = NULL;
 
@@ -63,7 +62,7 @@ glerror_printf()
     PsyGLError* err = NULL;
     int ret = psy_glerror_create(&err);
     CU_ASSERT_PTR_NOT_EQUAL(err, NULL);
-    if (!err)
+    if (ret != SEE_SUCCESS)
         return;
 
     const char* fmt = "An irrational number %lf, a non odd prime %d";
