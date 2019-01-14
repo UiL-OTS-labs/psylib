@@ -111,10 +111,11 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
         );
 }
 
-static void window_destroy(SeeObject* obj)
+static void
+window_destroy(SeeObject* obj)
 {
     PsyWindow* win = (PsyWindow*) obj;
-    const SeeObjectClass* super = obj->cls->psuper;
+    const SeeObjectClass* super = SEE_OBJECT_GET_CLASS(obj)->psuper;
     WindowPrivate* priv = win->window_priv;
     if (priv) {
         SDL_GL_DeleteContext(priv->context);
@@ -124,38 +125,44 @@ static void window_destroy(SeeObject* obj)
         }
         free(priv);
     }
+
+    // Chain up to the parent to destroy the see_object itself
     super->destroy(obj);
 }
 
-static int window_show(PsyWindow* window)
+static int
+window_show(PsyWindow* window)
 {
     assert(window && window->window_priv);
     if (!window || !window->window_priv)
-        return -1;
+        return SEE_INVALID_ARGUMENT;
     SDL_ShowWindow(window->window_priv->pwin);
     return 0;
 }
 
-static int window_hide(PsyWindow* window)
+static int
+window_hide(PsyWindow* window)
 {
     assert(window && window->window_priv);
     if (!(window && window->window_priv))
-        return -1;
+        return SEE_INVALID_ARGUMENT;
     SDL_HideWindow(window->window_priv->pwin);
     return 0;
 }
 
-static int window_swap_buffers(const PsyWindow* window)
+static int
+window_swap_buffers(const PsyWindow* window)
 {
     assert(window && window->window_priv);
     if (!(window && window->window_priv))
-        return -1;
+        return SEE_INVALID_ARGUMENT;
 
     SDL_GL_SwapWindow(window->window_priv->pwin);
     return 0;
 }
 
-static int window_fullscreen(PsyWindow* window, int full)
+static int
+window_fullscreen(PsyWindow* window, int full)
 {
     assert(window && window->window_priv);
     if (!(window && window->window_priv))
@@ -184,7 +191,8 @@ static int window_fullscreen(PsyWindow* window, int full)
     return SEE_SUCCESS;
 }
 
-static int window_get_rect(const PsyWindow* win, PsyRect* out)
+static int
+window_get_rect(const PsyWindow* win, PsyRect* out)
 {
     SDL_Window* sdl_window = win->window_priv->pwin;
     SDL_GetWindowPosition(sdl_window, &(out->pos.x), &(out->pos.y));
@@ -192,7 +200,8 @@ static int window_get_rect(const PsyWindow* win, PsyRect* out)
     return SEE_SUCCESS;
 }
 
-static int window_set_rect(PsyWindow* win, PsyRect* in, PsyError** error)
+static int
+window_set_rect(PsyWindow* win, PsyRect* in, PsyError** error)
 {
     SDL_Window* sdl_window = win->window_priv->pwin;
     SDL_SetWindowPosition(sdl_window, in->pos.x, in->pos.y);
@@ -202,14 +211,16 @@ static int window_set_rect(PsyWindow* win, PsyRect* in, PsyError** error)
     return SEE_SUCCESS;
 }
 
-static int window_get_position(const PsyWindow* window, PsyPos* out)
+static int
+window_get_position(const PsyWindow* window, PsyPos* out)
 {
     SDL_Window* sdl_window = window->window_priv->pwin;
     SDL_GetWindowPosition(sdl_window, &(out->x), &(out->y));
     return SEE_SUCCESS;
 }
 
-static int window_set_position(PsyWindow* window, PsyPos* in, PsyError** error)
+static int
+window_set_position(PsyWindow* window, PsyPos* in, PsyError** error)
 {
     SDL_Window *sdl_window = window->window_priv->pwin;
     SDL_SetWindowPosition(sdl_window, in->x, in->y);
@@ -218,14 +229,16 @@ static int window_set_position(PsyWindow* window, PsyPos* in, PsyError** error)
     return SEE_SUCCESS;
 }
 
-static int window_get_size(const PsyWindow* window, PsySize* out)
+static int
+window_get_size(const PsyWindow* window, PsySize* out)
 {
     SDL_Window* sdl_window = window->window_priv->pwin;
     SDL_GetWindowSize(sdl_window, &(out->width), &(out->height));
     return SEE_SUCCESS;
 }
 
-static int window_set_size(PsyWindow* window, PsySize* in, PsyError** error)
+static int
+window_set_size(PsyWindow* window, PsySize* in, PsyError** error)
 {
     SDL_Window *sdl_window = window->window_priv->pwin;
     SDL_SetWindowSize(sdl_window, in->width, in->height);
@@ -234,7 +247,8 @@ static int window_set_size(PsyWindow* window, PsySize* in, PsyError** error)
     return SEE_SUCCESS;
 }
 
-static int window_id(const PsyWindow* window, uint32_t *out)
+static int
+window_id(const PsyWindow* window, uint32_t *out)
 {
     SDL_Window* sdl_window = window->window_priv->pwin;
     *out = SDL_GetWindowID(sdl_window);
@@ -250,9 +264,11 @@ psy_window_create(PsyWindow** window, SeeError** error)
 {
     int ret;
     const PsyWindowClass* cls = psy_window_class();
-    const SeeObjectClass* see_cls = (const SeeObjectClass*) cls;
+    const SeeObjectClass* see_cls = SEE_OBJECT_CLASS(cls);
     assert(cls);
 
+    if (!cls)
+        return SEE_NOT_INITIALIZED;
 
     if (!window || *window)
         return SEE_INVALID_ARGUMENT;
@@ -280,7 +296,11 @@ int
 psy_window_create_rect(PsyWindow** window, PsyRect rect, SeeError** error) {
     int ret;
     const PsyWindowClass* cls = psy_window_class();
-    const SeeObjectClass* see_cls = (const SeeObjectClass*) cls;
+    const SeeObjectClass* see_cls = SEE_OBJECT_CLASS(cls);
+
+    assert(cls);
+    if (!cls)
+        return SEE_NOT_INITIALIZED;
 
     if (!window || *window)
         return SEE_INVALID_ARGUMENT;
@@ -304,112 +324,131 @@ psy_window_create_rect(PsyWindow** window, PsyRect rect, SeeError** error) {
     return ret;
 }
 
-int psy_window_fullscreen(PsyWindow* window, int full)
+int
+psy_window_fullscreen(PsyWindow* win, int full)
 {
-    if (!window)
+    const PsyWindowClass* win_cls;
+    if (!win)
         return SEE_INVALID_ARGUMENT;
 
-    const PsyWindowClass* win_cls = psy_window_class();
-    if (!win_cls)
-        return SEE_NOT_INITIALIZED;
+    win_cls = PSY_WINDOW_GET_CLASS(win);
 
-    return win_cls->fullscreen(window, full);
+    return win_cls->fullscreen(win, full);
 }
 
-int psy_window_get_rect(const PsyWindow* win, PsyRect* out)
+int
+psy_window_get_rect(const PsyWindow* win, PsyRect* out)
 {
+    const PsyWindowClass* win_cls;
     if (!win || !out)
         return SEE_INVALID_ARGUMENT;
 
-    return psy_window_class()->get_rect(win, out);
+    win_cls = PSY_WINDOW_GET_CLASS(win);
+
+    return win_cls->get_rect(win, out);
 }
 
 int
 psy_window_set_rect(PsyWindow* win, PsyRect* in, PsyError** error)
 {
+    const PsyWindowClass* win_cls;
     if (!win || !in)
         return SEE_INVALID_ARGUMENT;
 
     if (error && *error != NULL)
         return SEE_INVALID_ARGUMENT;
 
-    return psy_window_class()->set_rect(win, in, error);
+    win_cls = PSY_WINDOW_GET_CLASS(win);
+
+    return win_cls->set_rect(win, in, error);
 }
 
 int
 psy_window_get_position(const PsyWindow* win, PsyPos* out)
 {
+    const PsyWindowClass* win_cls;
     if (!win || !out)
         return SEE_INVALID_ARGUMENT;
 
-    return psy_window_class()->get_position(win, out);
+    win_cls = PSY_WINDOW_GET_CLASS(win);
+
+    return win_cls->get_position(win, out);
 }
 
 int
 psy_window_set_position(PsyWindow* win, PsyPos* in, PsyError** error)
 {
+    const PsyWindowClass* win_cls;
     if (!win || !in)
         return SEE_INVALID_ARGUMENT;
 
     if (error && *error != NULL)
         return SEE_INVALID_ARGUMENT;
 
-    return psy_window_class()->set_position(win, in, error);
+    win_cls = PSY_WINDOW_GET_CLASS(win);
+
+    return win_cls->set_position(win, in, error);
 }
 
 int
 psy_window_get_size(const PsyWindow* win, PsySize* out)
 {
+    const PsyWindowClass* win_cls;
     if (!win || !out)
         return SEE_INVALID_ARGUMENT;
 
-    return psy_window_class()->get_size(win, out);
+    win_cls = PSY_WINDOW_GET_CLASS(win);
+
+    return win_cls->get_size(win, out);
 }
 
 int
 psy_window_set_size(PsyWindow* win, PsySize* in, PsyError** error)
 {
+    const PsyWindowClass* win_cls;
     if (!win || !in)
         return SEE_INVALID_ARGUMENT;
 
     if (error && *error != NULL)
         return SEE_INVALID_ARGUMENT;
 
-    return psy_window_class()->set_size(win, in, error);
+    win_cls = PSY_WINDOW_GET_CLASS(win);
+
+    return win_cls->set_size(win, in, error);
 }
 
 int psy_window_show(PsyWindow* win)
 {
-    const PsyWindowClass* win_cls = psy_window_class();
+    const PsyWindowClass* win_cls;
+
     if (!win)
         return SEE_INVALID_ARGUMENT;
 
-    if (!win_cls)
-        return SEE_NOT_INITIALIZED;
+    win_cls = PSY_WINDOW_GET_CLASS(win);
 
     return win_cls->show(win);
 }
 
-int psy_window_swap(const PsyWindow* win)
+int
+psy_window_swap(const PsyWindow* win)
 {
-    const PsyWindowClass* win_cls = psy_window_class();
+    const PsyWindowClass* win_cls;
     if (!win)
         return SEE_INVALID_ARGUMENT;
 
-    if (!win_cls)
-        return SEE_NOT_INITIALIZED;
+    win_cls = PSY_WINDOW_GET_CLASS(win);
 
     return win_cls->swap_buffers(win);
 }
 
-int psy_window_id(const PsyWindow* win, uint32_t* id)
+int
+psy_window_id(const PsyWindow* win, uint32_t* id)
 {
-    const PsyWindowClass* win_cls = psy_window_class();
+    const PsyWindowClass* win_cls;
     if (!win || !id)
         return SEE_INVALID_ARGUMENT;
 
-    if (!win_cls)
-        return SEE_NOT_INITIALIZED;
+    win_cls = PSY_WINDOW_GET_CLASS(win);
 
     return win_cls->window_id(win, id);
 }
@@ -418,7 +457,8 @@ int psy_window_id(const PsyWindow* win, uint32_t* id)
 
 static PsyWindowClass* g_cls;
 
-int psy_window_class_init(SeeObjectClass* new_cls)
+int
+psy_window_class_init(SeeObjectClass* new_cls)
 {
     int ret = SEE_SUCCESS;
 
@@ -446,7 +486,8 @@ int psy_window_class_init(SeeObjectClass* new_cls)
     return ret;
 }
 
-int psy_window_init()
+int
+psy_window_init()
 {
     int ret;
     const SeeMetaClass* meta = see_meta_class_class();
@@ -474,7 +515,8 @@ psy_window_deinit()
     g_cls = NULL;
 }
 
-const PsyWindowClass* psy_window_class()
+const PsyWindowClass*
+psy_window_class()
 {
     return g_cls;
 }

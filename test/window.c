@@ -89,11 +89,11 @@ static void window_create(void)
     CU_ASSERT_EQUAL(error, NULL);
     if (ret) {
         fprintf(stderr, "%s", see_error_msg(SEE_ERROR(error)));
-        see_object_decref(error);
+        see_object_decref(SEE_OBJECT(error));
         return;
     }
 
-    see_object_decref((SeeObject*) window);
+    see_object_decref(SEE_OBJECT(window));
     if (error)
         see_object_decref((SeeObject*) error);
 }
@@ -123,7 +123,7 @@ static void window_create_rect(void)
     psy_window_get_position(win, &out.pos);
     psy_window_get_size(win, &out.size);
 
-    see_object_decref((SeeObject*)win);
+    see_object_decref(SEE_OBJECT(win));
 }
 
 static void window_fullscreen(void)
@@ -161,7 +161,7 @@ static void window_fullscreen(void)
     CU_ASSERT_EQUAL(sdl_rect.w, out.size.width);
     CU_ASSERT_EQUAL(sdl_rect.h, out.size.height);
 
-    see_object_decref((SeeObject*) win);
+    see_object_decref(SEE_OBJECT(win));
 }
 
 static void window_swap_synced(void)
@@ -264,7 +264,7 @@ static void window_swap_synced(void)
     }
 
     free(inter_frame_interval);
-    see_object_decref((SeeObject*) win);
+    see_object_decref(SEE_OBJECT(win));
 }
 
 static int rects_equal(PsyRect* r1, PsyRect* r2)
@@ -307,7 +307,7 @@ void window_dimensions(void)
     psy_window_get_rect(win, &out);
 
     CU_ASSERT(rects_equal(&out, &new));
-    see_object_decref((SeeObject*) win);
+    see_object_decref(SEE_OBJECT(win));
 }
 
 
