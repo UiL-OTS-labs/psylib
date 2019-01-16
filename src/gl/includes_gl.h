@@ -21,10 +21,20 @@
 
 #include <psy_config.h>
 
-#if defined(HAVE_GL_H)
+
+#if defined(HAVE_GL__GL_H)
     #include <GL/gl.h>
+#elif defined (HAVE__OpenGL__GL_H)
+    #include <OpenGL/gl.h>
+#else
+#pragma message  ("no gl.h support")
 #endif
 
-#ifdef HAVE_APPLE_GL_H
-    #include <OpenGL/gl.h>
+
+#if defined(HAVE_GL__GLEW_H)
+    #include <GL/glew.h>
+#elif defined(HAVE_OPENGL__GLEW_H)
+    #include <OpenGL/glew.h>
+#else
+#pragma message  ("no Glew support")
 #endif
