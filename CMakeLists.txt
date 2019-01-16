@@ -29,6 +29,8 @@ check_include_files(stdio.h HAVE_STDIO_H REQUIRED)
 check_include_files(stdlib.h HAVE_STDLIB_H REQUIRED)
 check_include_files(stdarg.h HAVE_STDARG_H REQUIRED)
 check_include_files(string.h HAVE_STRING_H REQUIRED)
+check_include_files(GL/gl.h HAVE_GL_H)
+check_include_files(OpenGL/gl.h HAVE_APPLE_GL_H)
 
 # Present us with warnings.
 if (MSVC)
