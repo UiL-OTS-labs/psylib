@@ -35,7 +35,8 @@ glerror_create()
     see_object_decref((SeeObject*) err);
 }
 
-static void glerror_msg()
+static void
+glerror_msg()
 {
     const char* msg = "Hello, glerror!";
     const char* expected = "OpenGL error: Hello, glerror!";
