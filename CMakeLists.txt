@@ -10,7 +10,7 @@ string (CONCAT PSY_VERSION
                 "${PSY_VERSION_MAJOR}.${PSY_VERSION_MINOR}"
                 )
 string (CONCAT PSY_VERSION_STRING
-                "SeeObject-${PSY_VERSION_MAJOR}."
+                "PsyLib-${PSY_VERSION_MAJOR}."
                 "${PSY_VERSION_MINOR}."
                 "${PSY_VERSION_MICRO}"
                 )
@@ -29,6 +29,7 @@ check_include_files(stdio.h HAVE_STDIO_H REQUIRED)
 check_include_files(stdlib.h HAVE_STDLIB_H REQUIRED)
 check_include_files(stdarg.h HAVE_STDARG_H REQUIRED)
 check_include_files(string.h HAVE_STRING_H REQUIRED)
+check_include_files(sys/stat.h HAVE_SYS_STAT_H)
 check_include_files(GL/gl.h HAVE_GL_H)
 check_include_files(OpenGL/gl.h HAVE_APPLE_GL_H)
 
