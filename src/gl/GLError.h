@@ -91,7 +91,7 @@ PSY_EXPORT int psy_glerror_init();
 PSY_EXPORT void psy_glerror_deinit();
 
 /**
- * \Get the PsyErrorClass instance.
+ * \brief Get the PsyErrorClass instance.
  */
 PSY_EXPORT const PsyGLErrorClass*   psy_glerror_class();
 
