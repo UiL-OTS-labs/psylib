@@ -65,23 +65,22 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
 static int
 shader_id(const PsyShader* shader, GLuint* id)
 {
-    const PsyShaderClass* cls = PSY_SHADER_GET_CLASS(shader);
-
-    if (!shader)
+    if (!shader || !id)
         return SEE_INVALID_ARGUMENT;
 
-    return cls->id(shader, id);
+    *id = shader->shader_id;
+
+    return SEE_SUCCESS;
 }
 
 static int
 shader_type(const PsyShader* shader, psy_shader_t* type)
 {
-    const PsyShaderClass* cls = PSY_SHADER_GET_CLASS(shader);
-
-    if (!shader)
+    if (!shader || !type)
         return SEE_INVALID_ARGUMENT;
 
-    return cls->type(shader, type);
+    *type = shader->shader_type;
+    return SEE_SUCCESS;
 }
 
 static int
@@ -158,9 +157,74 @@ shader_compile_file(PsyShader* shader, FILE* file, SeeError** error)
 
 /* **** implementation of the public API **** */
 
+int psy_shader_create(PsyShader** shader, psy_shader_t type, SeeError** error)
+{
+    const PsyShaderClass* cls = psy_shader_class();
+    const SeeObjectClass* see_cls = SEE_OBJECT_CLASS(cls);
+
+    if (!shader || *shader)
+        return SEE_INVALID_ARGUMENT;
+
+    if (error && *error)
+        return SEE_INVALID_ARGUMENT;
+
+    return see_cls->new(see_cls, 0, (SeeObject**) shader, type);
+}
+
+int psy_shader_id(const PsyShader* shader, GLuint* id)
+{
+    const PsyShaderClass* cls;
+    if (!shader || ! id)
+        return SEE_INVALID_ARGUMENT;
+
+    cls = PSY_SHADER_GET_CLASS(shader);
+    return cls->id(shader, id);
+}
+
+int psy_shader_type(const PsyShader* shader, psy_shader_t* type)
+{
+    const PsyShaderClass* cls;
+    if (!shader || ! type)
+        return SEE_INVALID_ARGUMENT;
+
+    cls = PSY_SHADER_GET_CLASS(shader);
+    return cls->type(shader, type);
+}
+
+int psy_shader_compile(PsyShader* shader, const char* src, SeeError** error)
+{
+    const PsyShaderClass* cls;
+    if (!shader || ! src)
+        return SEE_INVALID_ARGUMENT;
+
+    if (error && *error)
+        return SEE_INVALID_ARGUMENT;
+
+    cls = PSY_SHADER_GET_CLASS(shader);
+    return cls->shader_compile(shader, src, error);
+}
+
+int psy_shader_compile_file(PsyShader* shader, FILE* file, SeeError** error)
+{
+    const PsyShaderClass* cls;
+    if (!shader || ! file)
+        return SEE_INVALID_ARGUMENT;
+
+    if (error && *error)
+        return SEE_INVALID_ARGUMENT;
+
+    cls = PSY_SHADER_GET_CLASS(shader);
+    return cls->shader_compile_file(shader, file, error);
+}
+
 /* **** initialization of the class **** */
 
 PsyShaderClass* g_PsyShaderClass = NULL;
+
+const PsyShaderClass* psy_shader_class()
+{
+    return g_PsyShaderClass;
+}
 
 static int psy_shader_class_init(SeeObjectClass* new_cls) {
     int ret = SEE_SUCCESS;

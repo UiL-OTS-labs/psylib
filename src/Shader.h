@@ -114,6 +114,66 @@ struct _PsyShaderClass {
 PSY_EXPORT int
 psy_shader_create(PsyShader** shader, psy_shader_t type, SeeError** error);
 
+/**
+ * \brief Obtain the shader id from the shader
+ *
+ * A shader is created with a default id (0), indicating it hasn't been
+ * initialized. Once the shader is successfully compiled it this value
+ * should return an integer > 0.
+ *
+ * @param [in]  shader an initialized PsyShader*
+ * @param [out] out The shader id that we use for openGL.
+ * @return SEE_SUCCESS if the id is obtained correctly.
+ */
+PSY_EXPORT int
+psy_shader_id(const PsyShader* shader, GLuint* out);
+
+/**
+ * \brief Obtain the shader type.
+ * @param [in]  shader an initialized PsyShader*
+ * @param [out] out    Here is the output returned which should
+ *                     currently be PSY_SHADER_VERTEX or PSY_SHADER_FRAGMENT
+ * @return SEE_SUCCESS if everything worked out.
+ */
+PSY_EXPORT int
+psy_shader_type(const PsyShader* shader, psy_shader_t* out);
+
+
+/**
+ * \brief compile a shader from a string.
+ *
+ * This method compiles a shader. Before a shader can be created we must have
+ * a valid OpenGL context. Currently we can obtain a valid OpenGL context if
+ * we have a opened window. If the window opens the OpenGl Extension Wrangler
+ * (GLEW) is initialized (Actually Glew requires a valid OpenGL )
+ *
+ * @param [in, out] shader  An initialized shader.
+ * @param [in]      src     The shader source code to be compiled
+ * @param [out]     error   If an error occurs it should be returned here.
+ * @return
+ */
+PSY_EXPORT int
+psy_shader_compile(PsyShader* shader, const char* src, SeeError** error);
+
+
+/**
+ * \brief compile a shader from a file
+ *
+ * This method compiles a shader from an opened file. This function reads
+ * the file and uses compiles it. The name notes from psy_shader_compile
+ * about the OpenGL context apply here as well.
+ *
+ * @param [in,out]  shader An initialized PsyShader pointer
+ * @param [in,out]  file   A File that is opened for reading.
+ *                         ATM PsyLib doesn't understand platform file
+ *                         encodings, hence it's best when it gets an open
+ *                         file.
+ * @param [out]     error  If an error occurs it can be returned here.
+ * @return SEE_SUCCESS if the file compiled, some other SEE_ERROR if it did not
+ *                     in this case error should hold a informative error.
+ */
+PSY_EXPORT int
+psy_shader_compile_file(PsyShader* shader, FILE* file, SeeError** error);
 
 /**
  * Gets the pointer to the PsyShaderClass table.
