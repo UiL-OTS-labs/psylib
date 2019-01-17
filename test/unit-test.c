@@ -44,6 +44,8 @@ int add_suites()
         return 1;
     if (add_window_suite())
         return 1;
+    if (add_glshader_suite())
+        return 1;
 
     return 0;
 }

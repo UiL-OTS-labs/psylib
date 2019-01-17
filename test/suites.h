@@ -37,6 +37,13 @@ int add_error_suite();
 int add_glerror_suite();
 
 /**
+ * @private
+ * @\brief Tests the shaders for opengl
+ * @return
+ */
+int add_glshader_suite();
+
+/**
  * \private
  * \brief Tests whether the windowing suite is working as expected.
  *

@@ -30,6 +30,7 @@ if (BUILD_UNIT_TESTS)
          unit-test.c
          error.c
          glerror.c
+         glshader.c
          window.c
          globals.c
          )
@@ -52,4 +53,10 @@ if (BUILD_UNIT_TESTS)
 
     set_property(TARGET ${UNIT_TEST} PROPERTY C_STANDARD 99)
     set_property(TARGET ${UNIT_TEST} PROPERTY C_STANDARD_REQUIRED ON)
+
+    configure_file(
+            gl_shaders/test_vertex_shader.vert
+            ${CMAKE_CURRENT_BINARY_DIR}/gl_shaders/test_vertex_shader.vert
+        COPYONLY
+        )
 endif()
