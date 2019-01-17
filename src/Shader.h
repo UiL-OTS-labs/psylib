@@ -181,7 +181,7 @@ psy_shader_compile_file(PsyShader* shader, FILE* file, SeeError** error);
 PSY_EXPORT const PsyShaderClass*
 psy_shader_class();
 
-/* Expand the class with public functions here, don't forget the SEE_EXPORT
+/* Expand the class with public functions here, don't forget the PSY_EXPORT
  * macro, because otherwise you'll run into troubles when exporting function
  * in a windows dll.
  */
