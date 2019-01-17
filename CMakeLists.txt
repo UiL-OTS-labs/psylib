@@ -21,9 +21,11 @@ set (PSY_LIB psy)
 include (CheckIncludeFiles)
 include (GenerateExportHeader)
 include (InstallRequiredSystemLibraries)
+
 find_package(PkgConfig)
 find_package(SDL2 REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(GLEW REQUIRED)
 
 check_include_files(stdio.h         HAVE_STDIO_H        REQUIRED)
 check_include_files(stdlib.h        HAVE_STDLIB_H       REQUIRED)

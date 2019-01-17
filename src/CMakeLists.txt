@@ -50,6 +50,7 @@ target_link_libraries(
         ${SDL2_WHITE_SPACE_STRIPPED_LIBS}
         see_object::see_object
         ${OPENGL_gl_LIBRARIES}
+        ${GLEW_LIBRARIES}
     )
 target_include_directories(
         ${PSY_LIB}
