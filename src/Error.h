@@ -15,6 +15,13 @@
  * along with psylib.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file Error.h
+ * \public
+ * \author Maarten Duijndam
+ *
+ * \brief This file exports the public interface for SeeError object.
+ */
 
 #ifndef Error_H
 #define Error_H

@@ -18,15 +18,17 @@ set(PSY_SOURCES
     ShaderProgram.c
     Window.c
     gl/GLError.c
+    gl/gl_extensions.c
     )
 
-set (PSY_HEADERS
+set(PSY_HEADERS
     Error.h
     psy_init.h
     Shader.h
     ShaderProgram.h
     Window.h
     gl/GLError.h
+    gl/gl_extensions.h
     )
 
 add_library(${PSY_LIB} SHARED ${PSY_SOURCES} ${PSY_HEADERS})

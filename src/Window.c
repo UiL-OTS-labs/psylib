@@ -27,6 +27,7 @@
 
 #include "Error.h"
 #include "Window.h"
+#include "gl/gl_extensions.h"
 
 
 // constants
@@ -79,6 +80,7 @@ window_init(PsyWindow*              win,
     priv->context = SDL_GL_CreateContext(priv->pwin);
 
     SDL_GL_MakeCurrent(priv->pwin, priv->context);
+    allocate_glextension_for_context(priv->context);
 
     win->window_priv = priv;
 
@@ -118,6 +120,7 @@ window_destroy(SeeObject* obj)
     const SeeObjectClass* super = SEE_OBJECT_GET_CLASS(obj)->psuper;
     WindowPrivate* priv = win->window_priv;
     if (priv) {
+
         SDL_GL_DeleteContext(priv->context);
         if (priv->pwin) {
             SDL_DestroyWindow(priv->pwin);

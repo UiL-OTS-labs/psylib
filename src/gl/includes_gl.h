@@ -21,13 +21,14 @@
 
 #include <psy_config.h>
 
-#if defined(HAVE_GL__GLEW_H)
-    #include <GL/glew.h>
-#elif defined(HAVE_OPENGL__GLEW_H)
-    #include <OpenGL/glew.h>
-#else
-    #pragma message  ("no Glew support")
-#endif
+// Don't know whether to use glew or another mechanism to load the OpenGL extensions
+//#if defined(HAVE_GL__GLEW_H)
+//    #include <GL/glew.h>
+//#elif defined(HAVE_OPENGL__GLEW_H)
+//    #include <OpenGL/glew.h>
+//#else
+//    #pragma message  ("no Glew support")
+//#endif
 
 #if defined(HAVE_GL__GL_H)
     #include <GL/gl.h>

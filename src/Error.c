@@ -15,6 +15,12 @@
  * along with psylib.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file Error.c
+ * \brief Implements the SeeError objects.
+ * \private
+ */
+
 #include "psy_config.h"
 
 #include <stdio.h>
