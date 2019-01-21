@@ -49,8 +49,10 @@ static int create_window_gl(void)
 
 static int destroy_window_gl(void)
 {
-    if (g_win)
+    if (g_win) {
         see_object_decref(SEE_OBJECT(g_win));
+        g_win = NULL;
+    }
 
     return 0;
 }
