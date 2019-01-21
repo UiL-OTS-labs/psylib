@@ -45,6 +45,16 @@ shader_init(
     return ret;
 }
 
+static void
+shader_destroy(SeeObject* shader)
+{
+    assert(shader);
+    const SeeObjectClass* parent_cls = shader->cls->psuper;
+    if (PSY_SHADER(shader)->shader_id)
+        glDeleteShader(PSY_SHADER(shader)->shader_id);
+    parent_cls->destroy(shader);
+}
+
 static int
 init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
 {
@@ -90,6 +100,10 @@ shader_compile(PsyShader* shader, const char* src, SeeError** error)
     SeeError* err = NULL;
     char log[BUFSIZ] = {0};
 
+    if (shader->shader_id)
+        glDeleteShader(shader->shader_id);
+    shader->compiled = 0;
+
     glShaderSource(shader->shader_id, 1, &src, NULL);
     glCompileShader(shader->shader_id);
 
@@ -99,10 +113,12 @@ shader_compile(PsyShader* shader, const char* src, SeeError** error)
         glGetShaderInfoLog(shader->shader_id, sizeof(log), NULL, log);
         int status = psy_glerror_create((PsyGLError**)(&err));
         assert(status == SEE_SUCCESS);
-        psy_error_printf(PSY_ERROR(err), "Unable to compile shader:\n%s", log);
+        psy_error_printf(PSY_ERROR(err), "Unable to compile shader:\n%s\n", log);
         *error = err;
         return SEE_RUNTIME_ERROR;
     }
+
+    shader->compiled = 1;
 
     return SEE_SUCCESS;
 }
@@ -154,6 +170,14 @@ shader_compile_file(PsyShader* shader, FILE* file, SeeError** error)
     see_object_decref(SEE_OBJECT(array));
     return ret;
 }
+
+static int
+shader_compiled(const PsyShader* shader)
+{
+    assert(shader != NULL);
+    return shader->compiled;
+}
+
 
 /* **** implementation of the public API **** */
 
@@ -217,6 +241,16 @@ int psy_shader_compile_file(PsyShader* shader, FILE* file, SeeError** error)
     return cls->shader_compile_file(shader, file, error);
 }
 
+int psy_shader_compiled(const PsyShader* shader)
+{
+    const PsyShaderClass* cls;
+    assert(shader != 0);
+    if (!shader)
+        return 0;
+
+    cls = PSY_SHADER_GET_CLASS(shader);
+    return cls->shader_compiled(shader);
+}
 /* **** initialization of the class **** */
 
 PsyShaderClass* g_PsyShaderClass = NULL;
@@ -231,6 +265,8 @@ static int psy_shader_class_init(SeeObjectClass* new_cls) {
     
     /* Override the functions on the parent here */
     new_cls->init = init;
+    // We might need to free the shader on object destruction.
+    new_cls->destroy = shader_destroy;
 
     /* Set the function pointers of the own class here */
     PsyShaderClass* cls = (PsyShaderClass*) new_cls;
@@ -240,6 +276,7 @@ static int psy_shader_class_init(SeeObjectClass* new_cls) {
     cls->id                  = shader_id;
     cls->shader_compile      = shader_compile;
     cls->shader_compile_file = shader_compile_file;
+    cls->shader_compiled     = shader_compiled;
     
     return ret;
 }

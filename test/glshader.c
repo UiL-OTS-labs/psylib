@@ -120,6 +120,7 @@ static void gl_shader_compile_file(void)
 
     ret = psy_shader_compile_file(shader, file, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+    CU_ASSERT(psy_shader_compiled(shader));
 
     see_object_decref(SEE_OBJECT(shader));
 
@@ -128,7 +129,7 @@ static void gl_shader_compile_file(void)
 
 static void gl_shader_compile_failure(void)
 {
-
+    int add_failure_test;
 }
 
 

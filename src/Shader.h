@@ -15,6 +15,9 @@
  * along with psylib.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \file Shader.h A implements a OpenGL shader object.
+ */
 
 #ifndef PSY_SHADER_H
 #define PSY_SHADER_H
@@ -43,6 +46,12 @@ struct _PsyShader {
     /*expand PsyShader data here*/
     psy_shader_t    shader_type;
     GLuint          shader_id;
+
+    /**
+     * \private
+     * if non-zero the shader is compiled
+     */
+    int             compiled;
 };
 
 struct _PsyShaderClass {
@@ -69,6 +78,8 @@ struct _PsyShaderClass {
                                 FILE*      file,
                                 SeeError** error
                                 );
+
+    int (*shader_compiled)(const PsyShader* shader);
 };
 
 /* **** function style macro casts **** */
@@ -174,6 +185,16 @@ psy_shader_compile(PsyShader* shader, const char* src, SeeError** error);
  */
 PSY_EXPORT int
 psy_shader_compile_file(PsyShader* shader, FILE* file, SeeError** error);
+
+
+/**
+ * \brief checks whether the shader is compiled.
+ * @param shader
+ * @return 0 if the shader is compiled, another value indicates that the shader
+ *           is compiled.
+ */
+PSY_EXPORT int
+psy_shader_compiled(const PsyShader* shader);
 
 /**
  * Gets the pointer to the PsyShaderClass table.
