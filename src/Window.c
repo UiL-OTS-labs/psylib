@@ -27,7 +27,7 @@
 
 #include "Error.h"
 #include "Window.h"
-#include "gl/gl_extensions.h"
+#include "gl/includes_gl.h"
 
 
 // constants
@@ -80,7 +80,8 @@ window_init(PsyWindow*              win,
     priv->context = SDL_GL_CreateContext(priv->pwin);
 
     SDL_GL_MakeCurrent(priv->pwin, priv->context);
-    allocate_glextension_for_context(priv->context);
+    gladLoadGLLoader(SDL_GL_GetProcAddress);
+    gladLoadGL();
 
     win->window_priv = priv;
 

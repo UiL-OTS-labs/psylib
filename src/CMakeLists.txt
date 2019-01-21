@@ -17,8 +17,8 @@ set(PSY_SOURCES
     Shader.c
     ShaderProgram.c
     Window.c
+    gl/glad.c
     gl/GLError.c
-    gl/gl_extensions.c
     )
 
 set(PSY_HEADERS
@@ -27,8 +27,8 @@ set(PSY_HEADERS
     Shader.h
     ShaderProgram.h
     Window.h
+    gl/glad.h
     gl/GLError.h
-    gl/gl_extensions.h
     )
 
 add_library(${PSY_LIB} SHARED ${PSY_SOURCES} ${PSY_HEADERS})
@@ -51,8 +51,7 @@ target_link_libraries(
     ${PSY_LIB}
         ${SDL2_WHITE_SPACE_STRIPPED_LIBS}
         see_object::see_object
-        ${OPENGL_gl_LIBRARIES}
-        ${GLEW_LIBRARIES}
+        #${OPENGL_gl_LIBRARIES}
     )
 target_include_directories(
         ${PSY_LIB}

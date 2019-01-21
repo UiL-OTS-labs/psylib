@@ -19,23 +19,17 @@
  * \file includes platform specific OpenGL libraries.
  */
 
+#ifndef INCLUDES_GL_H
+#define INCLUDES_GL_H
+
 #include <psy_config.h>
 
-// Don't know whether to use glew or another mechanism to load the OpenGL extensions
-//#if defined(HAVE_GL__GLEW_H)
-//    #include <GL/glew.h>
-//#elif defined(HAVE_OPENGL__GLEW_H)
-//    #include <OpenGL/glew.h>
-//#else
-//    #pragma message  ("no Glew support")
-//#endif
-
-#if defined(HAVE_GL__GL_H)
-    #include <GL/gl.h>
-#elif defined (HAVE__OpenGL__GL_H)
-    #include <OpenGL/gl.h>
-#else
-    #pragma message  ("no gl.h support")
+// This should avoid the inclusion of windows.h on windows.
+#ifdef _WIN32
+    #define APIENTRY __stdcall
 #endif
 
+#include "glad.h"
+
+#endif
 
