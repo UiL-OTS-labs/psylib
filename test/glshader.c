@@ -103,13 +103,22 @@ static void gl_shader_compile_file(void)
     int ret;
     PsyShader* shader = NULL;
     SeeError*   error = NULL;
-    const char* file_name = "./gl_shaders/test_vertex_shader.vert";
-    FILE* file = fopen(file_name, "r");
+    FILE* file = NULL;
+    const char* locations[] = {
+        "./gl_shaders/test_vertex_shader.vert",
+        "./test/gl_shaders/test_vertex_shader.vert"
+    };
 
+    for (size_t i = 0; i < sizeof(locations)/sizeof(locations[0]); i++) {
+        const char* file_name = locations[i];
+        file = fopen(file_name, "r");
+        if (file)
+            break;
+    }
+    
     CU_ASSERT_PTR_NOT_EQUAL(file, NULL);
     if (!file)
         return;
-
 
     ret = psy_shader_create(&shader, PSY_SHADER_VERTEX, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
