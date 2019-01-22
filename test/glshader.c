@@ -187,6 +187,60 @@ static void gl_shader_compile_file(void)
     fclose(file);
 }
 
+static void gl_shader_compile_fragment_file(void)
+{
+    int ret;
+    GLuint id;
+    PsyShader* shader = NULL;
+    SeeError*   error = NULL;
+    FILE* file = NULL;
+    const char* locations[] = {
+        "./gl_shaders/test_fragment_shader.frag",
+        "./test/gl_shaders/test_fragment_shader.frag"
+    };
+
+    for (size_t i = 0; i < sizeof(locations)/sizeof(locations[0]); i++) {
+        const char* file_name = locations[i];
+        file = fopen(file_name, "r");
+        if (file)
+            break;
+    }
+
+    CU_ASSERT_PTR_NOT_EQUAL(file, NULL);
+    if (!file)
+        return;
+
+    ret = psy_shader_create(&shader, PSY_SHADER_FRAGMENT, &error);
+    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+    if (ret) {
+        fclose(file);
+        return;
+    }
+
+    ret = psy_shader_compile_file(shader, file, &error);
+    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+    if (ret != SEE_SUCCESS) {
+        fprintf(stderr, "%s\n",
+                see_error_msg(error)
+        );
+        see_object_decref(SEE_OBJECT(error));
+        see_object_decref(SEE_OBJECT(shader));
+        return;
+    }
+    CU_ASSERT(psy_shader_compiled(shader));
+    psy_shader_id(shader, &id);
+    CU_ASSERT_NOT_EQUAL(id, 0);
+    psy_shader_t type;
+    psy_shader_type(shader, &type);
+    CU_ASSERT_EQUAL(type, PSY_SHADER_FRAGMENT);
+
+
+    see_object_decref(SEE_OBJECT(shader));
+
+    fclose(file);
+}
+
+
 static void gl_shader_compile_failure(void)
 {
     int add_failure_test;
@@ -222,6 +276,7 @@ int add_glshader_suite()
     PSY_SUITE_ADD_TEST(suite_name, gl_shader_create);
     PSY_SUITE_ADD_TEST(suite_name, gl_shader_compile);
     PSY_SUITE_ADD_TEST(suite_name, gl_shader_compile_file);
+    PSY_SUITE_ADD_TEST(suite_name, gl_shader_compile_fragment_file);
     PSY_SUITE_ADD_TEST(suite_name, gl_shader_compile_failure);
 
     return 0;

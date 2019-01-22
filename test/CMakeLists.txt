@@ -59,4 +59,9 @@ if (BUILD_UNIT_TESTS)
             ${CMAKE_CURRENT_BINARY_DIR}/gl_shaders/test_vertex_shader.vert
         COPYONLY
         )
+    configure_file(
+            gl_shaders/test_fragment_shader.frag
+            ${CMAKE_CURRENT_BINARY_DIR}/gl_shaders/test_fragment_shader.frag
+        COPYONLY
+        )
 endif()
