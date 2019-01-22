@@ -46,6 +46,8 @@ int add_suites()
         return 1;
     if (add_glshader_suite())
         return 1;
+    if (add_glshader_program_suite())
+        return 1;
 
     return 0;
 }

@@ -197,7 +197,7 @@ shader_program_link(PsyShaderProgram* program, SeeError** error)
     int success;
     PsyGLError* glerror = NULL;
     char log[BUFSIZ];
-    
+
     if (program->program_id)
         glDeleteShader(program->program_id);
     program->program_id = 0;

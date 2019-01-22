@@ -31,6 +31,7 @@ if (BUILD_UNIT_TESTS)
          error.c
          glerror.c
          glshader.c
+         glprogram.c
          window.c
          globals.c
          )
