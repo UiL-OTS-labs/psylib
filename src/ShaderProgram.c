@@ -93,6 +93,20 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
         );
 }
 
+static void
+destroy(SeeObject* object)
+{
+    const SeeObjectClass* parent_cls = object->cls->psuper;
+
+    PsyShaderProgram* program = PSY_SHADER_PROGRAM(object);
+    see_object_decref(SEE_OBJECT(program->vertex_shader));
+    see_object_decref(SEE_OBJECT(program->fragment_shader));
+    if (program->program_id)
+        glDeleteProgram(program->program_id);
+
+    parent_cls->destroy(object);
+}
+
 static int
 add_shader(PsyShaderProgram* program, PsyShader* shader, SeeError** error)
 {
@@ -183,11 +197,12 @@ shader_program_link(PsyShaderProgram* program, SeeError** error)
     int success;
     PsyGLError* glerror = NULL;
     char log[BUFSIZ];
-    if (program->program_id) {
+    
+    if (program->program_id)
         glDeleteShader(program->program_id);
-        program->program_id = 0;
-        program->linked = 0;
-    }
+    program->program_id = 0;
+    program->linked = 0;
+
     program->program_id = glCreateProgram();
 
     PsyShader *shader = program->vertex_shader;
@@ -379,6 +394,7 @@ static int psy_shader_program_class_init(SeeObjectClass* new_cls) {
     
     /* Override the functions on the parent here */
     new_cls->init = init;
+    new_cls->destroy = destroy;
     
     /* Set the function pointers of the own class here */
     PsyShaderProgramClass* cls = (PsyShaderProgramClass*) new_cls;
