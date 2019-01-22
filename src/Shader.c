@@ -98,7 +98,7 @@ shader_compile(PsyShader* shader, const char* src, SeeError** error)
 {
     int success;
     SeeError* err = NULL;
-    char log[BUFSIZ] = {0};
+    char log[BUFSIZ];
 
     if (shader->shader_id)
         glDeleteShader(shader->shader_id);
@@ -126,7 +126,7 @@ shader_compile(PsyShader* shader, const char* src, SeeError** error)
         glGetShaderInfoLog(shader->shader_id, sizeof(log), NULL, log);
         int status = psy_glerror_create((PsyGLError**)(&err));
         assert(status == SEE_SUCCESS);
-        psy_error_printf(PSY_ERROR(err), "Unable to compile shader:\n%s\n", log);
+        psy_error_printf(PSY_ERROR(err), "Unable to compile shader:\n%s", log);
         *error = err;
         return SEE_RUNTIME_ERROR;
     }
