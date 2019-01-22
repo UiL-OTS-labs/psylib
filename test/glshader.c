@@ -24,6 +24,17 @@
 
 static const char* suite_name = "glshader";
 
+static const char* vert_shader_src =
+    "#version 330 core\n"
+    "\n"
+    "layout (location = 0) in vec3 aPos;\n"
+    "\n"
+    "void main()\n"
+    "{\n"
+    "    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "}\n"
+    ;
+
 static PsyWindow* g_win = NULL;
 static int g_win_x;
 static int g_win_y;
@@ -95,12 +106,42 @@ static void gl_shader_create(void)
 
 static void gl_shader_compile(void)
 {
+    int ret;
+    GLuint id;
+    PsyShader* shader = NULL;
+    SeeError*   error = NULL;
 
+    ret = psy_shader_create(&shader, PSY_SHADER_VERTEX, &error);
+    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+    if (ret != SEE_SUCCESS) {
+        fprintf(stderr, "Error compiling shader: %s\n",
+            see_error_msg(error)
+            );
+        see_object_decref(SEE_OBJECT(error));
+        return;
+    }
+
+    ret = psy_shader_compile(shader, vert_shader_src, &error);
+    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+    if (ret != SEE_SUCCESS) {
+        fprintf(stderr, "Error compiling shader: %s\n",
+            see_error_msg(error)
+            );
+        see_object_decref(SEE_OBJECT(error));
+        see_object_decref(SEE_OBJECT(shader));
+        return;
+    }
+
+    psy_shader_id(shader, &id);
+    CU_ASSERT_NOT_EQUAL(id, 0);
+
+    see_object_decref(SEE_OBJECT(shader));
 }
 
 static void gl_shader_compile_file(void)
 {
     int ret;
+    GLuint id;
     PsyShader* shader = NULL;
     SeeError*   error = NULL;
     FILE* file = NULL;
@@ -129,7 +170,17 @@ static void gl_shader_compile_file(void)
 
     ret = psy_shader_compile_file(shader, file, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+    if (ret != SEE_SUCCESS) {
+        fprintf(stderr, "%s\n",
+                see_error_msg(error)
+        );
+        see_object_decref(SEE_OBJECT(error));
+        see_object_decref(SEE_OBJECT(shader));
+        return;
+    }
     CU_ASSERT(psy_shader_compiled(shader));
+    psy_shader_id(shader, &id);
+    CU_ASSERT_NOT_EQUAL(id, 0);
 
     see_object_decref(SEE_OBJECT(shader));
 

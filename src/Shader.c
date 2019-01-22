@@ -102,6 +102,19 @@ shader_compile(PsyShader* shader, const char* src, SeeError** error)
 
     if (shader->shader_id)
         glDeleteShader(shader->shader_id);
+    GLuint shader_type = 0;
+    switch (shader->shader_id) {
+        case PSY_SHADER_VERTEX:
+            shader_type = GL_VERTEX_SHADER;
+            break;
+        case PSY_SHADER_FRAGMENT:
+            shader_type = GL_FRAGMENT_SHADER;
+            break;
+        default:
+            assert(0 == 1);
+            return SEE_INTERNAL_ERROR;
+    }
+    shader->shader_id = glCreateShader(shader_type);
     shader->compiled = 0;
 
     glShaderSource(shader->shader_id, 1, &src, NULL);
@@ -128,7 +141,7 @@ shader_compile_file(PsyShader* shader, FILE* file, SeeError** error)
 {
     int c, ret;
     char character;
-    char null_byte = '0';
+    char null_byte = '\0';
     const char* string = NULL;
     const PsyShaderClass* cls = PSY_SHADER_GET_CLASS(shader);
 
@@ -140,7 +153,7 @@ shader_compile_file(PsyShader* shader, FILE* file, SeeError** error)
         NULL,
         NULL,
         NULL,
-        1024
+        BUFSIZ
         );
 
     if (ret != SEE_SUCCESS)
@@ -159,6 +172,7 @@ shader_compile_file(PsyShader* shader, FILE* file, SeeError** error)
 
     if (ferror(file)) {
         ret = SEE_RUNTIME_ERROR;
+        perror("A error on the file was encountered");
         goto shader_compile_file_error;
     }
 
