@@ -21,6 +21,7 @@
 #include "gl/GLError.h"
 #include "Window.h"
 #include "Shader.h"
+#include "ShaderProgram.h"
 #include <assert.h>
 #include <SDL2/SDL.h>
 
@@ -140,6 +141,8 @@ int psylib_init(PsyError** error)
         return ret;
     if ((ret = psy_shader_init()) != 0)
         return ret;
+    if ((ret = psy_shader_program_init()) != 0)
+        return ret;
     if ((ret = psy_window_init()) != 0)
         return ret;
 
@@ -156,5 +159,6 @@ void psylib_deinit()
     psy_error_deinit();
     psy_glerror_deinit();
     psy_shader_deinit();
+    psy_shader_program_deinit();
     psy_window_deinit();
 }
