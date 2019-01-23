@@ -15,6 +15,10 @@
  * along with psylib.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \file Window.h
+ * \brief  This file implements a window on which can be drawn.
+ */
 
 #ifndef Window_H
 #define Window_H
@@ -32,15 +36,29 @@ extern "C" {
  * \brief The size of an object.
  */
 typedef struct _PsySize {
+    /**
+     * \brief The window width.
+     */
     int width;
+    /**
+     * \brief The window height.
+     */
     int height;
 }PsySize;
 
 /**
- * \The position of an object.
+ * \brief The position of an object.
  */
 typedef struct _PsyPos {
-    int x, y;
+    /**
+     * \brief the x position of a window
+     */
+    int x;
+
+    /**
+     * \brief the y postion of a window
+     */
+    int y;
 } PsyPos;
 
 /**
@@ -53,7 +71,14 @@ typedef struct _PsyPos {
  * the height of the rectangle.
  */
 typedef struct _PsyRect{
+    /**
+     * \brief The position on which a window can be presented
+     */
     PsyPos  pos;
+
+    /**
+     * \brief the size of a window.
+     */
     PsySize size;
 } PsyRect;
 
@@ -64,12 +89,20 @@ typedef struct _PsyWindowClass PsyWindowClass;
 
 typedef struct _WindowPrivate WindowPrivate;
 
-
+/**
+ * \brief The data that belongs to a window object. The private part
+ * should not be touched.
+ * \private
+ */
 struct _PsyWindow {
     SeeObject       obj;    
     WindowPrivate*  window_priv;
 };
 
+/**
+ * \brief The PsyWindowClass implements all the methods of the window.
+ * \private
+ */
 struct _PsyWindowClass {
     SeeObjectClass  see_class;
     int (*window_init)  (PsyWindow* win,
@@ -97,20 +130,20 @@ struct _PsyWindowClass {
 
 /* **** function style macro cast**** */
 /**
- * Cast a pointer to an PsyWindow derived object to a PsyWindow*
+ * \brief Cast a pointer to an PsyWindow derived object to a PsyWindow*
  */
 #define PSY_WINDOW(obj)                                                      \
     ((PsyWindow*)(obj))
 
 
 /**
- * Cast a pointer to class to a const PsyWindowClass*.
+ * \brief Cast a pointer to class to a const PsyWindowClass*.
  */
 #define PSY_WINDOW_CLASS(cls)                                                \
     ((const PsyWindowClass*) (cls));
 
 /**
- * Get the the class of a PsyWindow instance.
+ * \brief Get the the class of a PsyWindow instance.
  */
 #define PSY_WINDOW_GET_CLASS(obj)                                            \
     PSY_WINDOW_CLASS(see_object_get_class((SeeObject*)(obj)))
@@ -119,11 +152,11 @@ struct _PsyWindowClass {
 /* **** public api **** */
 
 /**
- * Create a new window with default parameters.
+ * \brief Create a new window with default parameters.
  *
- * @param window [out] The newly generated window should be a pointer
+ * @param [out] window The newly generated window should be a pointer
  *                     to a PsyWindow pointer that points to NULL.
- * @param error  [out] May be NULL or a pointer to null.
+ * @param [out] error  May be NULL or a pointer to null.
  * @return SEE_SUCCESS when successful or an number indicating the error.
  */
 PSY_EXPORT int
@@ -131,7 +164,7 @@ psy_window_create(PsyWindow** window, SeeError **out);
 
 
 /**
- * Create a new window with the position and the dimensions of rect.
+ * \brief Create a new window with the position and the dimensions of rect.
  *
  * @param [out] out A pointer to a valid PsyWindow* that points to NULL.
  * @param [in]  r a rectangle describing the rect where you would like to
@@ -212,8 +245,8 @@ psy_window_set_position(PsyWindow* win, PsyPos* in, PsyError** error);
 /**
  * \brief obtain the current size of a window.
  *
- * @param win
- * @param out
+ * @param [in]  win
+ * @param [out] out The size of the window should be returned here.
  *
  * @return SEE_SUCCESS if everything worked out.
  */
@@ -223,9 +256,9 @@ psy_window_get_size(const PsyWindow* win, PsySize* out);
 /**
  * \brief Modify the size of the current window.
  *
- * @param win
- * @param in
- * @param error
+ * @param [in,out]  win
+ * @param [in]      in
+ * @param [out]     error
  *
  * @return SEE_SUCCESS
  */
@@ -233,13 +266,20 @@ PSY_EXPORT int
 psy_window_set_size(PsyWindow* win, PsySize* in, PsyError** error);
 
 /**
- * show a window undo hiding
+ * \brief Show a window undo hiding
+ *
+ * @param [in,out] win the window that should become visible again.
+ * @return SEE_SUCCES if everything went alright.
  */
 PSY_EXPORT int
 psy_window_show(PsyWindow* win);
 
 /**
+ * \brief Hides a window.
  * Hide a window
+ *
+ * \param [in.out] win the window that should be hidden.
+ * \return SEE_SUCCESS if the window is successfully hidden.
  */
 PSY_EXPORT int
 psy_window_hide(PsyWindow* win);
@@ -252,6 +292,9 @@ psy_window_hide(PsyWindow* win);
  * finish all drawing calls and waits until the buffer is swapped. This
  * function should wait for the vertical retrace / vertical blanking interval
  * in order to prevent tearing.
+ *
+ * @param [in] window The window that is going to swap the buffers.
+ * @return SEE_SUCCESS when the buffer swap is completed.
  */
 PSY_EXPORT int
 psy_window_swap(const PsyWindow* window);
@@ -262,6 +305,7 @@ psy_window_swap(const PsyWindow* window);
  *
  * @param [in]  window  The window from which we would like to know the id.
  * @param [out] id      The window id
+ *
  * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT.
  */
 PSY_EXPORT int psy_window_id(const PsyWindow* window, uint32_t* id);
@@ -277,12 +321,16 @@ PSY_EXPORT int psy_window_id(const PsyWindow* window, uint32_t* id);
 PSY_EXPORT void
 psy_window_deinit();
 
-/** initialize the PsyWindowClass */
+/**
+ *\brief initialize the PsyWindowClass
+ */
 PSY_EXPORT int
 psy_window_init();
 
 
-/**\brief Get the psy_window_class */
+/**
+ * \brief Get the psy_window_class
+ */
 PSY_EXPORT const PsyWindowClass*
 psy_window_class();
 

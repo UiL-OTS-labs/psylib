@@ -35,12 +35,27 @@ extern "C" {
 typedef struct _PsyShader PsyShader;
 typedef struct _PsyShaderClass PsyShaderClass;
 
+/**
+ * \brief The type of shaders that Psylib supports
+ */
 typedef enum _psy_shader_t {
+    /**
+     * \brief A vertex shader
+     */
     PSY_SHADER_VERTEX,
+    /**
+     * \brief A fragment shader
+     */
     PSY_SHADER_FRAGMENT
+
     // Other shaders are currently not supported.
 } psy_shader_t;
 
+/**
+ * \brief This struct declares the data of a Shader object.
+ *
+ * \private
+ */
 struct _PsyShader {
     SeeObject parent_obj;
     /*expand PsyShader data here*/
@@ -54,6 +69,12 @@ struct _PsyShader {
     int             compiled;
 };
 
+/**
+ * \brief The PsyShaderClass defines the operations that can be done in order
+ * to do manipulation of a shader.
+ *
+ * \private
+ */
 struct _PsyShaderClass {
     SeeObjectClass parent_cls;
     
@@ -114,16 +135,18 @@ struct _PsyShaderClass {
 /**
  * @brief Create a new vertex or fragment shader.
  *
- * Creates a new updated shader.
+ * Creates a new shader.
  *
  * @param [out]     shader  A pointer to a pointer to PsyShader
  * @param [in]      type    PSY_VERTEX_SHADER or PSY_FRAGMENT_SHADER
  * @param [out]     error   If an error occurs it might be returned at error.
  *                          if it does the error should be decreffed.
- * @return
+ *
+ * @return SEE_SUCCESS when the shader has been created.
  */
 PSY_EXPORT int
 psy_shader_create(PsyShader** shader, psy_shader_t type, SeeError** error);
+
 
 /**
  * \brief Obtain the shader id from the shader
@@ -138,6 +161,7 @@ psy_shader_create(PsyShader** shader, psy_shader_t type, SeeError** error);
  */
 PSY_EXPORT int
 psy_shader_id(const PsyShader* shader, GLuint* out);
+
 
 /**
  * \brief Obtain the shader type.
@@ -172,7 +196,8 @@ psy_shader_compile(PsyShader* shader, const char* src, SeeError** error);
  *
  * This method compiles a shader from an opened file. This function reads
  * the file and uses compiles it. The name notes from psy_shader_compile
- * about the OpenGL context apply here as well.
+ * about the OpenGL context apply here as well. Make sure the file is opened
+ * for reading before passing it to this function.
  *
  * @param [in,out]  shader An initialized PsyShader pointer
  * @param [in,out]  file   A File that is opened for reading.
@@ -188,8 +213,10 @@ psy_shader_compile_file(PsyShader* shader, FILE* file, SeeError** error);
 
 
 /**
- * \brief checks whether the shader is compiled.
- * @param shader
+ * \brief Checks whether the shader is compiled.
+ *
+ * @param [in] shader
+ *
  * @return 0 if the shader is compiled, another value indicates that the shader
  *           is compiled.
  */
@@ -197,27 +224,25 @@ PSY_EXPORT int
 psy_shader_compiled(const PsyShader* shader);
 
 /**
- * Gets the pointer to the PsyShaderClass table.
+ * \brief Gets the pointer to the PsyShaderClass table.
+ * \private
  */
 PSY_EXPORT const PsyShaderClass*
 psy_shader_class();
 
-/* Expand the class with public functions here, don't forget the PSY_EXPORT
- * macro, because otherwise you'll run into troubles when exporting function
- * in a windows dll.
- */
-
 /* **** class initialization functions **** */
 
 /**
- * Initialize PsyShader; make it ready for use.
+ * \brief Initialize PsyShader; make it ready for use.
  */
 PSY_EXPORT
 int psy_shader_init();
 
 /**
- * Deinitialize PsyShader, after PsyShader has been deinitialized,
- * all functions in this header shouldn't be used anymore.
+ * \brief Deinitialize PsyShader.
+ *
+ * After PsyShader has been deinitialized, the functions in this header
+ * shouldn't be used anymore.
  */
 PSY_EXPORT
 void psy_shader_deinit();
