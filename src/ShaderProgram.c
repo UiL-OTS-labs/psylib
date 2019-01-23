@@ -191,6 +191,22 @@ add_fragment_shader(
         );
 }
 
+static const PsyShader*
+shader_program_get_vertex_shader(const PsyShaderProgram* program)
+{
+    if (!program)
+        return NULL;
+    return program->vertex_shader;
+}
+
+static const PsyShader*
+shader_program_get_fragment_shader(const PsyShaderProgram* program)
+{
+    if (!program)
+        return NULL;
+    return program->fragment_shader;
+}
+
 static int
 shader_program_link(PsyShaderProgram* program, SeeError** error)
 {
@@ -265,6 +281,16 @@ shader_program_link(PsyShaderProgram* program, SeeError** error)
         return SEE_RUNTIME_ERROR;
     }
 
+    /* Free resources */
+    if (program->vertex_shader) {
+        see_object_decref(SEE_OBJECT(program->vertex_shader));
+        program->vertex_shader = NULL;
+    }
+    if (program->fragment_shader) {
+        see_object_decref(SEE_OBJECT(program->fragment_shader));
+        program->fragment_shader = NULL;
+    }
+
     program->linked = 1;
 
     return SEE_SUCCESS;
@@ -305,7 +331,7 @@ int psy_shader_program_add_shader(
     PsyShaderProgram*   program,
     PsyShader*          shader,
     SeeError**          error
-)
+    )
 {
     const PsyShaderProgramClass* cls = PSY_SHADER_PROGRAM_GET_CLASS(program);
 
@@ -385,6 +411,33 @@ psy_shader_program_linked(const PsyShaderProgram* program)
     return cls->linked(program);
 }
 
+const PsyShader*
+psy_shader_program_get_vertex_shader(const PsyShaderProgram* program)
+{
+    const PsyShaderProgramClass *cls;
+    assert(program);
+    if (!program)
+        return NULL;
+
+    cls = PSY_SHADER_PROGRAM_GET_CLASS(program);
+
+    return cls->get_vertex_shader(program);
+}
+
+const PsyShader*
+psy_shader_program_get_fragment_shader(const PsyShaderProgram* program)
+{
+    const PsyShaderProgramClass *cls;
+    assert(program);
+    if (!program)
+        return NULL;
+
+    cls = PSY_SHADER_PROGRAM_GET_CLASS(program);
+
+    return cls->get_fragment_shader(program);
+}
+
+
 /* **** initialization of the class **** */
 
 PsyShaderProgramClass* g_PsyShaderProgramClass = NULL;
@@ -405,6 +458,8 @@ static int psy_shader_program_class_init(SeeObjectClass* new_cls) {
     cls->add_fragment_shader    = add_fragment_shader;
     cls->link                   = shader_program_link;
     cls->linked                 = shader_program_linked;
+    cls->get_fragment_shader    = shader_program_get_fragment_shader;
+    cls->get_vertex_shader      = shader_program_get_vertex_shader;
     
     return ret;
 }

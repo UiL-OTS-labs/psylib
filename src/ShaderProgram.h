@@ -76,6 +76,10 @@ struct _PsyShaderProgramClass {
         SeeError**          error
         );
 
+    const PsyShader* (*get_vertex_shader) (const PsyShaderProgram* program);
+
+    const PsyShader* (*get_fragment_shader) (const PsyShaderProgram* program);
+
     int (*link)(
         PsyShaderProgram* program,
         SeeError** error
@@ -84,6 +88,8 @@ struct _PsyShaderProgramClass {
     int (*linked) (
         const PsyShaderProgram* program
         );
+
+    int (*use_program)(const PsyShaderProgram* program);
 
 };
 
@@ -195,11 +201,13 @@ psy_shader_program_add_fragment_shader(
  * \brief link the program.
  *
  * The program is linked. Make sure you have added at least a valid Fragment and
- * Vertex shader.
+ * Vertex shader. Once a program is linked, the program erases/decrements the
+ * reference count on the internal shaders. This makes sure that minimal
+ * resources are used.
  *
  * @param [in] program
  * @param [out]error
- * @return
+ * @return SEE_SUCCESS, or another value that indicates something went wrong.
  */
 PSY_EXPORT int
 psy_shader_program_link(
@@ -214,23 +222,36 @@ psy_shader_program_link(
  * @return a non-null value when the program was successfully linked.
  */
 PSY_EXPORT int
-psy_shader_linked(const PsyShaderProgram* program);
+psy_shader_program_linked(const PsyShaderProgram* program);
+
+
+/**
+ * \brief make the current program ready for action.
+ *
+ * This function makes the current program ready for use on the current
+ * OpenGL context.
+ *
+ * @param [in] program  The non NULL PsyShaderProgram that should be used.
+ * @return SEE_SUCCESS if everything was alright.
+ */
+PSY_EXPORT int
+psy_shader_use_program(const PsyShaderProgram* program, SeeError** error);
 
 /**
  * \brief obtain the vertex shader.
  * @param [in] program
  * @return NULL if no vertex shader has been specified, a non NULL value otherwise.
  */
-PSY_EXPORT PsyShader*
-psy_shader_get_vertex_shader(const PsyShaderProgram* program);
+PSY_EXPORT const PsyShader*
+psy_shader_program_get_vertex_shader(const PsyShaderProgram* program);
 
 /**
  * \brief obtain the fragment shader.
  * @param [in] program
  * @return NULL if no fragment shader has been specified, a non NULL value otherwise.
  */
-PSY_EXPORT PsyShader*
-psy_shader_get_frament_shader(const PsyShaderProgram* program);
+PSY_EXPORT const PsyShader*
+psy_shader_program_get_fragment_shader(const PsyShaderProgram* program);
 
 
 
