@@ -141,7 +141,7 @@ teardown(void)
         g_vertex_shader = NULL;
     }
     if (g_fragment_shader) {
-        see_object_decref(SEE_OBJECT(g_win));
+        see_object_decref(SEE_OBJECT(g_fragment_shader));
         g_fragment_shader = NULL;
     }
 
@@ -210,6 +210,8 @@ void gl_shader_program_link(void)
         &error
         );
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+    CU_ASSERT_EQUAL(g_vertex_shader->parent_obj.refcount, 2);
+    CU_ASSERT_EQUAL(g_fragment_shader->parent_obj.refcount, 2);
     if (ret) {
         fprintf(stderr, "%s", see_error_msg(error));
         see_object_decref(SEE_OBJECT(error));
@@ -224,6 +226,13 @@ void gl_shader_program_link(void)
         see_object_decref(SEE_OBJECT(program));
         return;
     }
+    CU_ASSERT(psy_shader_program_linked(program))
+    // Check whether the shaders are cleaned up.
+    CU_ASSERT_EQUAL(psy_shader_program_get_vertex_shader(program), NULL);
+    CU_ASSERT_EQUAL(psy_shader_program_get_fragment_shader(program), NULL);
+    CU_ASSERT_EQUAL(g_vertex_shader->parent_obj.refcount, 1);
+    CU_ASSERT_EQUAL(g_fragment_shader->parent_obj.refcount, 1);
+
     see_object_decref(SEE_OBJECT(program));
 }
 
