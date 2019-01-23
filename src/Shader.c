@@ -15,6 +15,10 @@
  * along with psylib.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * file Shader.c
+ * \brief implements OpenGL shaders
+ */
 
 #include <assert.h>
 #include <DynamicArray.h>
