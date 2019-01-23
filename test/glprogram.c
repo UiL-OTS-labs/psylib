@@ -59,7 +59,8 @@ static int setup(void)
 
     for (size_t i = 0;
          i < sizeof(vertex_shader)/sizeof(vertex_shader[0]);
-         i++)
+         i++
+         )
     {
         file = fopen(vertex_shader[i], "r");
         if (file)
@@ -72,7 +73,8 @@ static int setup(void)
     ret = psy_shader_create(
         &g_vertex_shader,
         PSY_SHADER_VERTEX,
-        &error);
+        &error
+        );
     if(ret != SEE_SUCCESS) {
         fprintf(stderr, "%s", see_error_msg(SEE_ERROR(error)));
         goto setup_failure;
@@ -102,7 +104,8 @@ static int setup(void)
     ret = psy_shader_create(
         &g_fragment_shader,
         PSY_SHADER_FRAGMENT,
-        &error);
+        &error
+        );
     if(ret != SEE_SUCCESS) {
         fprintf(stderr, "%s", see_error_msg(SEE_ERROR(error)));
         goto setup_failure;
