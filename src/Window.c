@@ -80,6 +80,7 @@ window_init(PsyWindow*              win,
     priv->context = SDL_GL_CreateContext(priv->pwin);
 
     SDL_GL_MakeCurrent(priv->pwin, priv->context);
+    SDL_GL_SetSwapInterval(1);
     gladLoadGLLoader(SDL_GL_GetProcAddress);
     gladLoadGL();
 
