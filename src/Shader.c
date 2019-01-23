@@ -102,8 +102,8 @@ shader_compile(PsyShader* shader, const char* src, SeeError** error)
 
     if (shader->shader_id)
         glDeleteShader(shader->shader_id);
-    GLuint shader_type = 0;
-    switch (shader->shader_id) {
+    GLenum shader_type = 0;
+    switch (shader->shader_type) {
         case PSY_SHADER_VERTEX:
             shader_type = GL_VERTEX_SHADER;
             break;
