@@ -71,10 +71,22 @@ struct _PsyShaderProgramClass {
         );
 
     int (*add_fragment_shader)(
-        PsyShaderProgram* program,
+        PsyShaderProgram*   program,
         PsyShader*          shader,
         SeeError**          error
         );
+
+    int (*add_vertex_src)(
+        PsyShaderProgram*   program,
+        const char*         shader_src,
+        SeeError**          error
+    );
+
+    int (*add_fragment_src)(
+        PsyShaderProgram*   program,
+        const char*         shader_src,
+        SeeError**          error
+    );
 
     const PsyShader* (*get_vertex_shader) (const PsyShaderProgram* program);
 
@@ -166,6 +178,9 @@ psy_shader_program_add_shader(
  * makes sure that the vertex is really a vertex shader, before using
  * psy_program_add_shader internally.
  *
+ * Adding a new shader invalidates the program and hence, it should be linked
+ * again. Hence, it is best to use a program once
+ *
  * @param [in, out] program The program to which you want to add a vertex shader.
  * @param [in]      shader  The <b>Vertex</b> shader.
  * @param [out]     error
@@ -184,6 +199,9 @@ psy_shader_program_add_vertex_shader(
  * Insert a fragment shader in the program. This function does a little bit
  * makes sure that the fragment is really a fragment shader, before using
  * psy_program_add_shader internally.
+ *
+ * Adding a new shader invalidates the program and hence, it should be linked
+ * again. Hence, it is best to use a program once
  *
  * @param [in,out]  program the program to which you want to add a fragment shader
  * @param [in]  shader  the shader this shader must be a fragment shader.
@@ -252,6 +270,47 @@ psy_shader_program_get_vertex_shader(const PsyShaderProgram* program);
  */
 PSY_EXPORT const PsyShader*
 psy_shader_program_get_fragment_shader(const PsyShaderProgram* program);
+
+/**
+ * \brief add a shader via specifying the source of a vertex shader.
+ *
+ * This method creates a temporary PsyShader instance and adds this to the
+ * program.
+ *
+ * @param [in, out] program The program to which we would like to add a vertex
+ * shader
+ * @param [in] src The source code for the vertex shader.
+ * @param [out] error if an error occurs it will be handled here.
+ *
+ * @returns SEE_SUCCESS if everything works out.
+ */
+ PSY_EXPORT int
+ psy_shader_program_add_vertex_src(
+     PsyShaderProgram* program,
+     const char* src,
+     SeeError** error
+     );
+
+/**
+ * \brief add a shader via specifying the source of a fragment shader.
+ *
+ * This method creates a temporary PsyShader instance and adds this to the
+ * program. Notice that changing a shader, results in having a different
+ * program, hence, one should relink the program in order to have effect.
+ *
+ * @param [in, out] program The program to which we would like to add a fragment
+ * shader
+ * @param [in] src The source code for the fragment shader.
+ * @param [out] error if an error occurs it will be handled here.
+ *
+ * @returns SEE_SUCCESS if everything works out.
+ */
+PSY_EXPORT int
+psy_shader_program_add_fragment_src(
+    PsyShaderProgram* program,
+    const char* src,
+    SeeError** error
+    );
 
 
 

@@ -22,6 +22,45 @@
 #include "Shader.h"
 #include "gl/GLError.h"
 
+
+static void
+invalidate_program(PsyShaderProgram* program)
+{
+    if (!program)
+        return;
+
+    if(program->program_id) {
+        glDeleteProgram(program->program_id);
+        program->program_id = 0;
+    }
+    program->linked = 0;
+}
+
+static void
+invalidate_vertex_shader(PsyShaderProgram* program)
+{
+    if (!program)
+        return;
+
+    if (program->vertex_shader) {
+        see_object_decref(SEE_OBJECT(program->vertex_shader));
+        program->vertex_shader = NULL;
+    }
+    invalidate_program(program);
+}
+
+static void invalidate_fragment_shader(PsyShaderProgram* program)
+{
+    if (!program)
+        return;
+
+    if (program->fragment_shader) {
+        see_object_decref(SEE_OBJECT(program->fragment_shader));
+        program->fragment_shader = NULL;
+    }
+    invalidate_program(program);
+}
+
 /* **** functions that implement PsyShaderProgram or override SeeObject **** */
 
 static int
@@ -99,10 +138,9 @@ destroy(SeeObject* object)
     const SeeObjectClass* parent_cls = object->cls->psuper;
 
     PsyShaderProgram* program = PSY_SHADER_PROGRAM(object);
-    see_object_decref(SEE_OBJECT(program->vertex_shader));
-    see_object_decref(SEE_OBJECT(program->fragment_shader));
-    if (program->program_id)
-        glDeleteProgram(program->program_id);
+    invalidate_vertex_shader(program);
+    invalidate_fragment_shader(program);
+    invalidate_program(program);
 
     parent_cls->destroy(object);
 }
@@ -140,6 +178,11 @@ add_vertex_shader(
     SeeError**          error
     )
 {
+    // TODO handle the case we already have a vertex shader and or program.
+    // eg free the old shader and unlink the program.
+    if (program->vertex_shader)
+        invalidate_vertex_shader(program);
+
     psy_shader_t type;
     const PsyShaderClass* shader_cls = PSY_SHADER_GET_CLASS(vertex_shader);
     int ret = shader_cls->type(vertex_shader, &type);
@@ -169,6 +212,11 @@ add_fragment_shader(
     SeeError**          error
     )
 {
+    // TODO handle the case we already have a fragment shader and or program.
+    // eg free the old shader and unlink the program.
+    if (program->fragment_shader)
+        invalidate_fragment_shader(program);
+
     psy_shader_t type;
     const PsyShaderClass* shader_cls = PSY_SHADER_GET_CLASS(fragment_shader);
     int ret = shader_cls->type(fragment_shader, &type);
@@ -190,6 +238,59 @@ add_fragment_shader(
         error
         );
 }
+
+static int
+add_vertex_src(
+    PsyShaderProgram*   program,
+    const char*         src,
+    SeeError**          error
+    )
+{
+    int ret;
+    const PsyShaderProgramClass* cls = PSY_SHADER_PROGRAM_GET_CLASS(program);
+    PsyShader* vertshader = NULL;
+
+    ret = psy_shader_create(&vertshader, PSY_SHADER_VERTEX, error);
+    if (ret != SEE_SUCCESS)
+        return ret;
+
+    ret = psy_shader_compile(vertshader, src, error);
+    if (ret != SEE_SUCCESS)
+        goto add_vertex_src_error;
+
+    ret = cls->add_vertex_shader(program, vertshader, error);
+
+add_vertex_src_error:
+    see_object_decref(SEE_OBJECT(vertshader));
+    return ret;
+}
+
+static int
+add_fragment_src (
+    PsyShaderProgram*   program,
+    const char*         src,
+    SeeError**          error
+)
+{
+    int ret;
+    const PsyShaderProgramClass* cls = PSY_SHADER_PROGRAM_GET_CLASS(program);
+    PsyShader* fragshader = NULL;
+
+    ret = psy_shader_create(&fragshader, PSY_SHADER_FRAGMENT, error);
+    if (ret != SEE_SUCCESS)
+        return ret;
+
+    ret = psy_shader_compile(fragshader, src, error);
+    if (ret != SEE_SUCCESS)
+        goto add_frag_src_error;
+
+    ret = cls->add_fragment_shader(program, fragshader, error);
+
+add_frag_src_error:
+    see_object_decref(SEE_OBJECT(fragshader));
+    return ret;
+}
+
 
 static const PsyShader*
 shader_program_get_vertex_shader(const PsyShaderProgram* program)
@@ -215,9 +316,7 @@ shader_program_link(PsyShaderProgram* program, SeeError** error)
     char log[BUFSIZ];
 
     if (program->program_id)
-        glDeleteProgram(program->program_id);
-    program->program_id = 0;
-    program->linked = 0;
+        invalidate_program(program);
 
     program->program_id = glCreateProgram();
 
@@ -281,7 +380,7 @@ shader_program_link(PsyShaderProgram* program, SeeError** error)
         return SEE_RUNTIME_ERROR;
     }
 
-    /* Free resources */
+    /* Free resources as they are contained in the program. */
     if (program->vertex_shader) {
         see_object_decref(SEE_OBJECT(program->vertex_shader));
         program->vertex_shader = NULL;
@@ -387,6 +486,48 @@ int psy_shader_program_add_fragment_shader(
     return cls->add_fragment_shader(program, fragment, error);
 }
 
+int psy_shader_program_add_vertex_src(
+    PsyShaderProgram*   program,
+    const char*         vertex,
+    SeeError**          error
+)
+{
+    const PsyShaderProgramClass* cls = PSY_SHADER_PROGRAM_GET_CLASS(program);
+
+    if (!program)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!vertex)
+        return SEE_INVALID_ARGUMENT;
+
+    if (error && *error)
+        return SEE_INVALID_ARGUMENT;
+
+    return cls->add_vertex_src(program, vertex, error);
+}
+
+int psy_shader_program_add_fragment_src(
+    PsyShaderProgram*   program,
+    const char*         fragment,
+    SeeError**          error
+)
+{
+    const PsyShaderProgramClass* cls = PSY_SHADER_PROGRAM_GET_CLASS(program);
+
+    if (!program)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!fragment)
+        return SEE_INVALID_ARGUMENT;
+
+    if (error && *error)
+        return SEE_INVALID_ARGUMENT;
+
+    return cls->add_fragment_src(program, fragment, error);
+}
+
+
+
 int
 psy_shader_program_link(PsyShaderProgram* program, SeeError** error)
 {
@@ -456,6 +597,8 @@ static int psy_shader_program_class_init(SeeObjectClass* new_cls) {
     cls->add_shader             = add_shader;
     cls->add_vertex_shader      = add_vertex_shader;
     cls->add_fragment_shader    = add_fragment_shader;
+    cls->add_vertex_src         = add_vertex_src;
+    cls->add_fragment_src       = add_fragment_src;
     cls->link                   = shader_program_link;
     cls->linked                 = shader_program_linked;
     cls->get_fragment_shader    = shader_program_get_fragment_shader;

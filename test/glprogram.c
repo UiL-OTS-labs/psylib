@@ -32,6 +32,39 @@ static int g_win_height;
 
 static const char* suite_name = "gl shader program";
 
+static const char* vert_shader_src =
+    "#version 330 core\n"
+    "\n"
+    "layout (location = 0) in vec3 aPos;\n"
+    "\n"
+    "void main()\n"
+    "{\n"
+    "    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "}\n"
+    ;
+
+static const char* frag_shader_src =
+    "#version 330 core\n"
+    "\n"
+    "out vec4 FragColor;\n"
+    "\n"
+    "void main()\n"
+    "{\n"
+    "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+    "}\n"
+    ;
+
+static const char* frag_shader_src_no_main =
+    "#version 330 core\n"
+    "\n"
+    "out vec4 FragColor;\n"
+    "\n"
+    "void pain()\n"
+    "{\n"
+    "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+    "}\n"
+    ;
+
 static int setup(void)
 {
     SeeError*   error   = NULL;
@@ -239,9 +272,84 @@ void gl_shader_program_link(void)
     see_object_decref(SEE_OBJECT(program));
 }
 
+void gl_shader_program_src(void)
+{
+    int ret;
+    PsyShaderProgram* program = NULL;
+    SeeError*         error = NULL;
+    ret = psy_shader_program_create(&program, NULL, NULL, &error);
+
+    CU_ASSERT_PTR_NOT_EQUAL(program, NULL);
+    CU_ASSERT_PTR_EQUAL(error, NULL);
+    if (ret != SEE_SUCCESS) {
+        see_object_decref(SEE_OBJECT(error));
+        return;
+    }
+
+    ret = psy_shader_program_add_vertex_src(program, vert_shader_src, &error);
+    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+    if (ret)
+        goto gl_shader_program_src_error;
+    ret = psy_shader_program_add_fragment_src(program, frag_shader_src, &error);
+    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+    if (ret)
+        goto gl_shader_program_src_error;
+
+    ret = psy_shader_program_link(program, &error);
+    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+    if (ret)
+        goto gl_shader_program_src_error;
+
+gl_shader_program_src_error:
+    if (error) {
+        fprintf(stderr, "%s:%s:%s", __FILE__, __func__, see_error_msg(error));
+        see_object_decref(SEE_OBJECT(error));
+    }
+    see_object_decref(SEE_OBJECT(program));
+}
+
 void gl_shader_program_failure(void)
 {
-    int unused;
+    int ret;
+    PsyShaderProgram* program = NULL;
+    SeeError*         error = NULL;
+    ret = psy_shader_program_create(&program, NULL, NULL, &error);
+
+    CU_ASSERT_PTR_NOT_EQUAL(program, NULL);
+    CU_ASSERT_PTR_EQUAL(error, NULL);
+    if (ret != SEE_SUCCESS)
+        goto gl_shader_program_src_error;
+
+    ret = psy_shader_program_add_vertex_src(program, vert_shader_src, &error);
+    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+    if (ret)
+        goto gl_shader_program_src_error;
+
+    ret = psy_shader_program_add_fragment_src(
+        program,
+        frag_shader_src_no_main,
+        &error
+        );
+    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+    if (ret)
+        goto gl_shader_program_src_error;
+
+    ret = psy_shader_program_link(program, &error);
+    CU_ASSERT_EQUAL(ret, SEE_RUNTIME_ERROR);
+
+gl_shader_program_src_error:
+    if (error) {
+        if (g_settings.verbose) {
+            fprintf(stderr,
+                    "Expected error:\n\t%s:%s:%s",
+                    __FILE__,
+                    __func__,
+                    see_error_msg(error)
+                    );
+        }
+        see_object_decref(SEE_OBJECT(error));
+    }
+    see_object_decref(SEE_OBJECT(program));
 }
 
 int add_glshader_program_suite(void)
@@ -271,6 +379,7 @@ int add_glshader_program_suite(void)
 
     PSY_SUITE_ADD_TEST(suite_name, gl_shader_program_create);
     PSY_SUITE_ADD_TEST(suite_name, gl_shader_program_link);
+    PSY_SUITE_ADD_TEST(suite_name, gl_shader_program_src);
     PSY_SUITE_ADD_TEST(suite_name, gl_shader_program_failure);
 
     return 0;
