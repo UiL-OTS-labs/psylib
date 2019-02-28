@@ -281,7 +281,7 @@ psy_window_create(PsyWindow** window, SeeError** error)
     if (error != NULL && *error)
         return SEE_INVALID_ARGUMENT;
 
-    ret = see_cls->new(
+    ret = see_cls->new_obj(
         see_cls,
         0,
         (SeeObject**) window,
@@ -313,7 +313,7 @@ psy_window_create_rect(PsyWindow** window, PsyRect rect, SeeError** error) {
     if (error != NULL && *error)
         return SEE_INVALID_ARGUMENT;
 
-    ret = see_cls->new(
+    ret = see_cls->new_obj(
         see_cls,
         0,
         (SeeObject**) window,

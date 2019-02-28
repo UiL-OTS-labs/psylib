@@ -210,7 +210,7 @@ int psy_shader_create(PsyShader** shader, psy_shader_t type, SeeError** error)
     if (error && *error)
         return SEE_INVALID_ARGUMENT;
 
-    return see_cls->new(see_cls, 0, (SeeObject**) shader, type);
+    return see_cls->new_obj(see_cls, 0, (SeeObject**) shader, type);
 }
 
 int psy_shader_id(const PsyShader* shader, GLuint* id)

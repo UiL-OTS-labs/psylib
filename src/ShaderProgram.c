@@ -423,7 +423,7 @@ psy_shader_program_create(
     if (error && *error)
         return SEE_INVALID_ARGUMENT;
 
-    return see_cls->new(see_cls, 0, (SeeObject**) out, vertex, fragment, error);
+    return see_cls->new_obj(see_cls, 0, (SeeObject**) out, vertex, fragment, error);
 }
 
 int psy_shader_program_add_shader(

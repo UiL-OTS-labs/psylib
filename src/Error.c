@@ -150,7 +150,7 @@ psy_error_create()
     PsyError* error_instance = NULL;
     const SeeObjectClass* cls = SEE_OBJECT_CLASS(psy_error_class());
 
-    int error = cls->new(
+    int error = cls->new_obj(
         cls,
         0,
         (SeeObject**) &error_instance,

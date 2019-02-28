@@ -130,7 +130,7 @@ psy_glerror_create(PsyGLError** out)
     if (!out || *out)
         return SEE_INVALID_ARGUMENT;
 
-    int ret = cls->new(
+    int ret = cls->new_obj(
         cls,
         0,
         (SeeObject**) out,
