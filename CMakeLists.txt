@@ -19,11 +19,18 @@ set (PSY_LIB psy)
 
 # include cmake helper packages
 include (CheckIncludeFiles)
+include (FindPkgConfig)
 include (GenerateExportHeader)
 include (InstallRequiredSystemLibraries)
-
 find_package(PkgConfig)
-find_package(SDL2 REQUIRED)
+
+find_package(SDL2)
+ # if no find module is present try pkg-config
+if (NOT SDL2_FOUND AND PKG_CONFIG_FOUND)
+    pkg_search_module(SDL2 REQUIRED sdl2)
+    message("SDL2 was found via pkg-config: ${SDL2_LIBRARIES}")
+endif()
+
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
