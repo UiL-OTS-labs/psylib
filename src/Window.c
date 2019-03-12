@@ -119,7 +119,6 @@ static void
 window_destroy(SeeObject* obj)
 {
     PsyWindow* win = (PsyWindow*) obj;
-    const SeeObjectClass* super = SEE_OBJECT_GET_CLASS(obj)->psuper;
     WindowPrivate* priv = win->window_priv;
     if (priv) {
 
@@ -132,7 +131,7 @@ window_destroy(SeeObject* obj)
     }
 
     // Chain up to the parent to destroy the see_object itself
-    super->destroy(obj);
+    see_object_class()->destroy(obj);
 }
 
 static int

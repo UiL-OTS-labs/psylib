@@ -135,14 +135,12 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
 static void
 destroy(SeeObject* object)
 {
-    const SeeObjectClass* parent_cls = object->cls->psuper;
-
     PsyShaderProgram* program = PSY_SHADER_PROGRAM(object);
     invalidate_vertex_shader(program);
     invalidate_fragment_shader(program);
     invalidate_program(program);
 
-    parent_cls->destroy(object);
+    see_object_class()->destroy(object);
 }
 
 static int

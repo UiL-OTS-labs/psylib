@@ -53,10 +53,9 @@ static void
 shader_destroy(SeeObject* shader)
 {
     assert(shader);
-    const SeeObjectClass* parent_cls = shader->cls->psuper;
     if (PSY_SHADER(shader)->shader_id)
         glDeleteShader(PSY_SHADER(shader)->shader_id);
-    parent_cls->destroy(shader);
+    see_object_class()->destroy(shader);
 }
 
 static int

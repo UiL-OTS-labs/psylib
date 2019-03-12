@@ -57,17 +57,12 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
 static void
 error_msg_set(SeeError* obj, const char* msg)
 {
-    PsyError*            error = PSY_ERROR(obj);
-    const PsyErrorClass* cls   = PSY_ERROR_GET_CLASS(obj);
-
-    const SeeErrorClass* super = SEE_ERROR_CLASS(SEE_OBJECT_CLASS(cls)->psuper);
+    PsyError* error = PSY_ERROR(obj);
 
     // Print to the buffer.
     snprintf(&error->msg_buffer[0], sizeof(error->msg_buffer), "%s", msg);
 
-    // The super class should point make the SeeError message point to the
-    // PsyError->message_buffer
-    super->set_msg(SEE_ERROR(error), error->msg_buffer);
+    see_error_class()->set_msg(SEE_ERROR(error), error->msg_buffer);
 }
 
 static int
@@ -80,10 +75,7 @@ error_msg_printf(PsyError* error, const char* format, va_list ap)
         ap
         );
 
-    const SeeErrorClass* super = SEE_ERROR_CLASS(
-        SEE_OBJECT_GET_CLASS(error)->psuper
-        );
-    super->set_msg(SEE_ERROR(error), error->msg_buffer);
+    see_error_class()->set_msg(SEE_ERROR(error), error->msg_buffer);
 
     return ret;
 }
