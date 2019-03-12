@@ -74,7 +74,7 @@ struct _PsyErrorClass {
  * Cast a pointer to class to a const PsyErrorClass*.
  */
 #define PSY_ERROR_CLASS(cls)                                                \
-    ((const PsyErrorClass*) (cls));
+    ((const PsyErrorClass*) (cls))
 
 /**
  * Get the the class of a PsyError instance.
