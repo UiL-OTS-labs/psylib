@@ -45,7 +45,7 @@ glerror_msg_set(SeeError* obj, const char* msg)
         "%s",
         msg);
 
-    obj->msg = error->msg_buffer;
+    SEE_ERROR_CLASS(psy_error_class())->set_msg(obj, msg);
 }
 
 static int
@@ -59,8 +59,7 @@ glerror_msg_printf(PsyError* error, const char* format, va_list ap)
         ap
         );
 
-    SEE_ERROR(error)->msg = error->msg_buffer;
-
+    PSY_ERROR_CLASS(psy_error_class())->error_printf(error, format, ap);
     return ret;
 }
 
