@@ -28,8 +28,9 @@ static void
 error_create()
 {
     PsyError* err = NULL;
-    err = psy_error_create();
+    int ret = psy_error_create(&err);
     CU_ASSERT_PTR_NOT_EQUAL(err, NULL);
+    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     if (!err)
         return;
     see_object_decref((SeeObject*) err);
@@ -38,7 +39,8 @@ error_create()
 static void error_msg()
 {
     const char* msg = "Hello, error!";
-    PsyError* err = psy_error_create();
+    PsyError* err = NULL;
+    psy_error_create(&err);
     CU_ASSERT_PTR_NOT_EQUAL(err, NULL);
     if (!err)
         return;
@@ -56,7 +58,8 @@ error_printf()
 
     double pi = 3.141592654;
     int even_prime = 2;
-    PsyError* err = psy_error_create();
+    PsyError* err = NULL;
+    psy_error_create(&err);
     CU_ASSERT_PTR_NOT_EQUAL(err, NULL);
     if (!err)
         return;

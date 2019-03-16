@@ -136,22 +136,19 @@ psy_error_class()
     return g_cls;
 }
 
-PsyError*
-psy_error_create()
+int
+psy_error_create(PsyError** error)
 {
-    PsyError* error_instance = NULL;
     const SeeObjectClass* cls = SEE_OBJECT_CLASS(psy_error_class());
 
-    int error = cls->new_obj(
+    int ret = cls->new_obj(
         cls,
         0,
-        (SeeObject**) &error_instance,
-        NULL
+        (SeeObject**) error,
+        error
         );
-    if (error)
-        return NULL;
 
-    return error_instance;
+    return ret;
 }
 
 int

@@ -32,18 +32,17 @@ generate_sdl_error(PsyError** error)
         fprintf(stderr, "Unable to initialize SDL: %s.\n", SDL_GetError());
     }
     else {
-        PsyError* err = psy_error_create();
-        assert(err != NULL);
-        if (!error) {
+        int ret = psy_error_create(error);
+        assert(error != NULL);
+        if (ret != SEE_SUCCESS) {
             fprintf(stderr, "Panic: Unable to initialize SDL and errors are "
                             "unavailable.\n"
             );
         }
-        psy_error_printf(err, "%s:\n\t%s\n",
+        psy_error_printf(*error, "%s:\n\t%s\n",
                          "Unable to initialize SDL",
                          SDL_GetError()
         );
-        *error = err;
     }
 }
 

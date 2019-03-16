@@ -100,7 +100,8 @@ static void window_create(void)
 
 static void window_create_rect(void)
 {
-    PsyWindow* win = NULL;
+    PsyWindow*  win     = NULL;
+    SeeError*   error   = NULL;
     int x = g_win_x, y = g_win_y, width = g_win_width, height = g_win_height;
     PsyRect r = {
         {x,     y},
@@ -108,11 +109,17 @@ static void window_create_rect(void)
     };
     PsyRect out;
 
-    int ret = psy_window_create_rect(&win, r, NULL);
+    int ret = psy_window_create_rect(&win, r, &error);
     CU_ASSERT(ret == SEE_SUCCESS);
     CU_ASSERT_PTR_NOT_EQUAL(win, NULL);
-    if (ret)
-        return;
+    if (ret) {
+        fprintf(stderr, "%s:%s:%s\n",
+                __FILE__,
+                __FUNCTION__,
+                see_error_msg(error)
+               );
+        goto fail;
+    }
 
     psy_window_get_rect(win, &out);
     CU_ASSERT_EQUAL(r.pos.x, out.pos.x);
@@ -123,12 +130,17 @@ static void window_create_rect(void)
     psy_window_get_position(win, &out.pos);
     psy_window_get_size(win, &out.size);
 
+fail:
+
     see_object_decref(SEE_OBJECT(win));
+    see_object_decref(SEE_OBJECT(error));
 }
 
 static void window_fullscreen(void)
 {
-    PsyWindow* win = NULL;
+    PsyWindow*  win     = NULL;
+    SeeError*   error   = NULL;
+
     int x = g_win_x, y = g_win_y, width = g_win_width, height = g_win_y;
     int ret, n;
     SDL_Rect sdl_rect;
@@ -139,7 +151,7 @@ static void window_fullscreen(void)
         {width, height}
     };
 
-    ret = psy_window_create_rect(&win, r, NULL);
+    ret = psy_window_create_rect(&win, r, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     if (ret)
         return;
@@ -167,6 +179,7 @@ static void window_fullscreen(void)
 static void window_swap_synced(void)
 {
     PsyWindow* win = NULL;
+    SeeError* error= NULL;
     int x = g_win_x, y = g_win_y, width = g_win_width, height = g_win_height;
     double seconds;
     int ret, n;
@@ -189,7 +202,7 @@ static void window_swap_synced(void)
     while (SDL_PollEvent(&event))
         ;
 
-    ret = psy_window_create_rect(&win, r, NULL);
+    ret = psy_window_create_rect(&win, r, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     int have_expose = 0, have_shown = 0;
     if (ret)
@@ -282,7 +295,8 @@ static int rects_equal(PsyRect* r1, PsyRect* r2)
 
 void window_dimensions(void)
 {
-    PsyWindow* win = NULL;
+    PsyWindow*  win = NULL;
+    SeeError*   error = NULL;
     int x = g_win_x, y = g_win_y, width = g_win_width, height = g_win_y;
     int ret;
     PsyRect r = {
@@ -295,7 +309,7 @@ void window_dimensions(void)
     };
     PsyRect out = {{0,0},{0,0}};
 
-    ret = psy_window_create_rect(&win, r, NULL);
+    ret = psy_window_create_rect(&win, r, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     if (ret != SEE_SUCCESS)
         return;

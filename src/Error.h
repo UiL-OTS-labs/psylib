@@ -86,7 +86,8 @@ struct _PsyErrorClass {
 /* ********* public psy_error api *********** */
 
 /** Create a error to return to the user.*/
-PSY_EXPORT PsyError* psy_error_create();
+PSY_EXPORT int
+psy_error_create(PsyError** error);
 
 /**
  * \brief Initialize the error message.
@@ -95,14 +96,16 @@ PSY_EXPORT PsyError* psy_error_create();
  * sizeof struct _PsyError.msg field. If the message is longer it will be
  * truncated.
  */
-PSY_EXPORT int psy_error_msg_set(PsyError* self, const char* message);
+PSY_EXPORT int
+psy_error_msg_set(PsyError* self, const char* message);
 
 /**
  * \brief Use a standard stdio printf format to initialize the message of 
  * the error. Internally snprintf is used to truncate the message if it is
  * longer than the buffer of the PsyError.msg is large.
  */
-PSY_EXPORT int psy_error_printf(PsyError* self, const char* format, ...);
+PSY_EXPORT int
+psy_error_printf(PsyError* self, const char* format, ...);
 
 /**
  * \brief Creates the class.
@@ -110,7 +113,8 @@ PSY_EXPORT int psy_error_printf(PsyError* self, const char* format, ...);
  * This function creates/prepares the class to be ready for use.
  * Has got to be called prior to use any of the psy_error_* functions
  */
-PSY_EXPORT int psy_error_init();
+PSY_EXPORT int
+psy_error_init();
 
 /**
  * \brief Unrefs the class and if the class is freed it's parents
@@ -118,12 +122,14 @@ PSY_EXPORT int psy_error_init();
  * Make sure you do not have any remaining PsyError instances after
  * deinitializing the psy_error_class.
  */
-PSY_EXPORT void psy_error_deinit();
+PSY_EXPORT void
+psy_error_deinit();
 
 /**
  * \Get the PsyErrorClass instance.
  */
-PSY_EXPORT const PsyErrorClass*   psy_error_class();
+PSY_EXPORT const PsyErrorClass*
+psy_error_class();
 
 
 #ifdef __cplusplus

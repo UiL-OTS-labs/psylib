@@ -70,8 +70,12 @@ window_init(PsyWindow*              win,
     obj_cls->object_init(SEE_OBJECT(win), obj_cls);
 
     priv = calloc(1, sizeof(WindowPrivate));
-    if (!priv)
+    if (!priv) {
+        int see_generate_runtime;
         return SEE_RUNTIME_ERROR;
+    }
+
+    win->window_priv = priv;
 
     priv->pwin = SDL_CreateWindow(name, x, y, w, h, flags);
     if (!priv->pwin)
@@ -82,9 +86,15 @@ window_init(PsyWindow*              win,
     SDL_GL_MakeCurrent(priv->pwin, priv->context);
     SDL_GL_SetSwapInterval(1);
     gladLoadGLLoader(SDL_GL_GetProcAddress);
-    gladLoadGL();
-
-    win->window_priv = priv;
+    int ret = gladLoadGL();
+    if (!ret) { // gladLoadGL() return 1 if succesfull
+        psy_error_create(error);
+        see_error_set_msg(
+                SEE_ERROR(*error),
+                "Glad is unable to load openGL."
+                );
+        return SEE_RUNTIME_ERROR;
+    }
 
     return SEE_SUCCESS;
 }
@@ -277,7 +287,7 @@ psy_window_create(PsyWindow** window, SeeError** error)
     if (!window || *window)
         return SEE_INVALID_ARGUMENT;
 
-    if (error != NULL && *error)
+    if (!error || *error)
         return SEE_INVALID_ARGUMENT;
 
     ret = see_cls->new_obj(

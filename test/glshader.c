@@ -61,8 +61,14 @@ static int create_window_gl(void)
     };
 
     int ret = psy_window_create_rect(&g_win, rect, &error);
-    if (ret != SEE_SUCCESS)
+    if (ret != SEE_SUCCESS) {
+        fprintf(stderr, "%s:%s",
+                __FUNCTION__,
+                see_error_msg(error)
+                );
+        see_object_decref(SEE_OBJECT(error));
         return 1;
+    }
 
     psy_window_show(g_win);
 
