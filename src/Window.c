@@ -72,14 +72,14 @@ window_init(PsyWindow*              win,
     priv = calloc(1, sizeof(WindowPrivate));
     if (!priv) {
         int see_generate_runtime;
-        return SEE_RUNTIME_ERROR;
+        return SEE_ERROR_RUNTIME;
     }
 
     win->window_priv = priv;
 
     priv->pwin = SDL_CreateWindow(name, x, y, w, h, flags);
     if (!priv->pwin)
-        return SEE_RUNTIME_ERROR;
+        return SEE_ERROR_RUNTIME;
 
     priv->context = SDL_GL_CreateContext(priv->pwin);
 
@@ -93,7 +93,7 @@ window_init(PsyWindow*              win,
                 SEE_ERROR(*error),
                 "Glad is unable to load openGL."
                 );
-        return SEE_RUNTIME_ERROR;
+        return SEE_ERROR_RUNTIME;
     }
 
     return SEE_SUCCESS;

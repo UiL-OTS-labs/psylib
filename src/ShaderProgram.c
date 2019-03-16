@@ -328,7 +328,7 @@ shader_program_link(PsyShaderProgram* program, SeeError** error)
                 __func__
                 );
             *error = SEE_ERROR(glerror);
-            return SEE_RUNTIME_ERROR;
+            return SEE_ERROR_RUNTIME;
         }
         glAttachShader(program->program_id, shader->shader_id);
     }
@@ -339,7 +339,7 @@ shader_program_link(PsyShaderProgram* program, SeeError** error)
             "No vertex shader specified"
             );
         *error = SEE_ERROR(glerror);
-        return SEE_RUNTIME_ERROR;
+        return SEE_ERROR_RUNTIME;
     }
 
     shader = program->fragment_shader;
@@ -352,7 +352,7 @@ shader_program_link(PsyShaderProgram* program, SeeError** error)
                 __func__
             );
             *error = SEE_ERROR(glerror);
-            return SEE_RUNTIME_ERROR;
+            return SEE_ERROR_RUNTIME;
         }
         glAttachShader(program->program_id, shader->shader_id);
     }
@@ -363,7 +363,7 @@ shader_program_link(PsyShaderProgram* program, SeeError** error)
             "No fragment shader specified"
             );
         *error = SEE_ERROR(glerror);
-        return SEE_RUNTIME_ERROR;
+        return SEE_ERROR_RUNTIME;
     }
 
     glLinkProgram(program->program_id);
@@ -375,7 +375,7 @@ shader_program_link(PsyShaderProgram* program, SeeError** error)
         assert(status == SEE_SUCCESS);
         psy_error_printf(PSY_ERROR(glerror),"Unable to link program:\n%s", log);
         *error = SEE_ERROR(glerror);
-        return SEE_RUNTIME_ERROR;
+        return SEE_ERROR_RUNTIME;
     }
 
     /* Free resources as they are contained in the program. */

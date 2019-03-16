@@ -22,9 +22,10 @@
 
 #include <assert.h>
 #include <DynamicArray.h>
-#include "MetaClass.h"
+#include <SeeObject-0.0/MetaClass.h>
 #include "Shader.h"
-#include "Error.h"
+#include <SeeObject-0.0/Error.h>
+#include <SeeObject-0.0/IndexError.h>
 #include "gl/GLError.h"
 
 /* **** functions that implement PsyShader or override SeeObject **** */
@@ -115,7 +116,7 @@ shader_compile(PsyShader* shader, const char* src, SeeError** error)
             break;
         default:
             assert(0 == 1);
-            return SEE_INTERNAL_ERROR;
+            return SEE_ERROR_INTERNAL;
     }
     shader->shader_id = glCreateShader(shader_type);
     shader->compiled = 0;
@@ -131,7 +132,7 @@ shader_compile(PsyShader* shader, const char* src, SeeError** error)
         assert(status == SEE_SUCCESS);
         psy_error_printf(PSY_ERROR(err), "Unable to compile shader:\n%s", log);
         *error = err;
-        return SEE_RUNTIME_ERROR;
+        return SEE_ERROR_RUNTIME;
     }
 
     shader->compiled = 1;
@@ -156,7 +157,8 @@ shader_compile_file(PsyShader* shader, FILE* file, SeeError** error)
         NULL,
         NULL,
         NULL,
-        BUFSIZ
+        BUFSIZ,
+        error
         );
 
     if (ret != SEE_SUCCESS)
@@ -164,22 +166,22 @@ shader_compile_file(PsyShader* shader, FILE* file, SeeError** error)
 
     while ((c = fgetc(file)) != EOF) {
         character = (char) c;
-        ret = see_dynamic_array_add(array, &character);
+        ret = see_dynamic_array_add(array, &character, error);
         if (ret != SEE_SUCCESS) {
             goto shader_compile_file_error;
         }
     }
-    ret = see_dynamic_array_add(array, &null_byte);
+    ret = see_dynamic_array_add(array, &null_byte, error);
     if (ret)
         goto shader_compile_file_error;
 
     if (ferror(file)) {
-        ret = SEE_RUNTIME_ERROR;
-        perror("A error on the file was encountered");
+        ret = SEE_ERROR_RUNTIME;
+        //see_runtime_error_create(error, errno);
         goto shader_compile_file_error;
     }
 
-    string = see_dynamic_array_get(array, 0);
+    string = see_dynamic_array_get(array, 0, error);
     ret = cls->shader_compile(shader, string, error);
 
     //cleanup and exit

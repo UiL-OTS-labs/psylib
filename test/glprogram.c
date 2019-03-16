@@ -335,7 +335,7 @@ void gl_shader_program_failure(void)
         goto gl_shader_program_src_error;
 
     ret = psy_shader_program_link(program, &error);
-    CU_ASSERT_EQUAL(ret, SEE_RUNTIME_ERROR);
+    CU_ASSERT_EQUAL(ret, SEE_ERROR_RUNTIME);
 
 gl_shader_program_src_error:
     if (error) {

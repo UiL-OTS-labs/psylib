@@ -206,7 +206,7 @@ psy_shader_program_add_vertex_shader(
  * @param [in,out]  program the program to which you want to add a fragment shader
  * @param [in]  shader  the shader this shader must be a fragment shader.
  * @param [out] error   If an error occurs, you might get some useful info here.
- * @return SEE_SUCCESS or sometimes SEE_RUNTIME_ERROR
+ * @return SEE_SUCCESS or sometimes SEE_ERROR_RUNTIME
  */
 PSY_EXPORT int
 psy_shader_program_add_fragment_shader(
