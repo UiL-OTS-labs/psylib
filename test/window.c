@@ -229,8 +229,8 @@ static void window_swap_synced(void)
     double* inter_frame_interval = malloc(N_FRAMES * sizeof(double));
     assert(inter_frame_interval);
     //SDL_Delay(17);
-    glClearColor(1.0,1.0,1.0,1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    psy_window_set_clear_color(win, 1.0,1.0,1.0,1.0);
+    psy_window_clear(win);
 
     /* for some currently unknown reason swapping the window takes some time
      * to stabilize
@@ -240,8 +240,7 @@ static void window_swap_synced(void)
     seconds = ((double) SDL_GetTicks()) / 1000.0;
 
     for (int i = 0; i < N_FRAMES; i++) {
-        glClearColor(1.0, 1.0, 1.0, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT);
+        psy_window_clear(win);
         psy_window_swap(win);
         double now = ((double)SDL_GetTicks())/1000.0;
         inter_frame_interval[i] = now - seconds;

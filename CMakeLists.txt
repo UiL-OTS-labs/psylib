@@ -31,8 +31,11 @@ if (NOT SDL2_FOUND AND PKG_CONFIG_FOUND)
     message("SDL2 was found via pkg-config: ${SDL2_LIBRARIES}")
 endif()
 
-find_package(OpenGL REQUIRED)
-find_package(GLEW REQUIRED)
+option(
+    RASPBERRY_PI_BUILD
+    "Specialize the build for a rapberry pi (We use OpenGL ES"
+    OFF
+)
 
 check_include_files(stdio.h         HAVE_STDIO_H        REQUIRED)
 check_include_files(stdlib.h        HAVE_STDLIB_H       REQUIRED)
