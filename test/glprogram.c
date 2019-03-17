@@ -113,7 +113,7 @@ static int setup(void)
         goto setup_failure;
     }
 
-    ret = psy_shader_compile_file(g_vertex_shader, file, NULL);
+    ret = psy_shader_compile_file(g_vertex_shader, file, &error);
     if (ret) {
         fprintf(stderr, "%s", see_error_msg(SEE_ERROR(error)));
         goto setup_failure;
@@ -144,7 +144,7 @@ static int setup(void)
         goto setup_failure;
     }
 
-    ret = psy_shader_compile_file(g_fragment_shader, file, NULL);
+    ret = psy_shader_compile_file(g_fragment_shader, file, &error);
     if (ret) {
         fprintf(stderr, "%s", see_error_msg(SEE_ERROR(error)));
         goto setup_failure;
