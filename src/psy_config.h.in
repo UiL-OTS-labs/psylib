@@ -20,11 +20,14 @@
 #define PSY_VERSION_MICRO @PSY_VERSION_MICRO@
 #define PSY_VERSION_STRING "@PSY_VERSION_STRING@"
 
+// header checks
+
 #cmakedefine HAVE_STDIO_H           1
 #cmakedefine HAVE_STDLIB_H          1
 #cmakedefine HAVE_STRING_H          1
 #cmakedefine HAVE_SYS_STAT_H        1
-#cmakedefine HAVE_GL__GL_H          1
-#cmakedefine HAVE_OPENGL__GL_H      1
-#cmakedefine HAVE_GL__GLEW_H        1
-#cmakedefine HAVE_OPENGL__GLEW_H    1
+
+// Special build definitions
+
+#cmakedefine RASPBERRY_PI_BUILD     1
+

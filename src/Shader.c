@@ -197,6 +197,39 @@ shader_compiled(const PsyShader* shader)
     return shader->compiled;
 }
 
+static int
+shader_size(const PsyShader* shader, size_t* out)
+{
+    int ret;
+    const PsyShaderClass* cls = PSY_SHADER_GET_CLASS(shader);
+    if(!cls->shader_compiled(shader))
+        return SEE_ERROR_RUNTIME;
+    GLuint id;
+    ret = cls->id(shader, &id);
+    if (ret)
+        return ret;
+
+    GLint params = 0;
+    glGetShaderiv(id, GL_SHADER_SOURCE_LENGTH, &params);
+    *out = (size_t) params;
+    return SEE_SUCCESS;
+}
+
+static int
+shader_source(const PsyShader* shader, char* buffer, size_t bufsize)
+{
+    const PsyShaderClass* cls = PSY_SHADER_GET_CLASS(shader);
+    if(!cls->shader_compiled(shader))
+        return SEE_ERROR_RUNTIME;
+    GLuint id;
+    int ret = cls->id(shader, &id);
+    if (ret)
+        return ret;
+
+    GLsizei length;
+    glGetShaderSource(id, bufsize, &length, buffer);
+    return SEE_SUCCESS;
+}
 
 /* **** implementation of the public API **** */
 
@@ -263,13 +296,34 @@ int psy_shader_compile_file(PsyShader* shader, FILE* file, SeeError** error)
 int psy_shader_compiled(const PsyShader* shader)
 {
     const PsyShaderClass* cls;
-    assert(shader != 0);
-    if (!shader)
+    assert(shader != NULL);
+    if (!shader) // we return a bool
         return 0;
 
     cls = PSY_SHADER_GET_CLASS(shader);
     return cls->shader_compiled(shader);
 }
+
+int
+psy_shader_size(const PsyShader* shader, size_t *out)
+{
+    if (!shader || !out)
+        return SEE_INVALID_ARGUMENT;
+
+    const PsyShaderClass* cls = PSY_SHADER_GET_CLASS(shader);
+    return cls->shader_size(shader, out);
+}
+
+int
+psy_shader_source(const PsyShader* shader, char* buffer, size_t bufsiz)
+{
+    if (!shader || !buffer)
+        return SEE_INVALID_ARGUMENT;
+
+    const PsyShaderClass* cls = PSY_SHADER_GET_CLASS(shader);
+    return cls->shader_source(shader, buffer, bufsiz);
+}
+
 /* **** initialization of the class **** */
 
 PsyShaderClass* g_PsyShaderClass = NULL;
@@ -296,6 +350,8 @@ static int psy_shader_class_init(SeeObjectClass* new_cls) {
     cls->shader_compile      = shader_compile;
     cls->shader_compile_file = shader_compile_file;
     cls->shader_compiled     = shader_compiled;
+    cls->shader_size         = shader_size;
+    cls->shader_source       = shader_source;
     
     return ret;
 }

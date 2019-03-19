@@ -126,6 +126,13 @@ struct _PsyWindowClass {
     int (*get_size)     (const PsyWindow* window, PsySize* rect);
     int (*set_size)     (PsyWindow* window, PsySize* rect, PsyError** error);
     int (*window_id)    (const PsyWindow* window, uint32_t* out);
+    int (*clear_color)  (PsyWindow* window,
+                         float r,
+                         float g,
+                         float b,
+                         float a
+                         );
+    int (*clear)        (PsyWindow* window);
 };
 
 /* **** function style macro cast**** */
@@ -309,6 +316,35 @@ psy_window_swap(const PsyWindow* window);
  * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT.
  */
 PSY_EXPORT int psy_window_id(const PsyWindow* window, uint32_t* id);
+
+/**
+ * Sets the clearcolor for the window. If the color buffer is cleared this
+ * will be the new background.
+
+ * @param [in, out] window The window whose background we would like to change.
+ * @param [in] r red usefull range [0 : 1]
+ * @param [in] g green usefull range [0 : 1]
+ * @param [in] b blue usefull range [0 : 1]
+ * @param [in] a alpha usefull range [0 : 1]
+ *
+ * return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+PSY_EXPORT int psy_window_set_clear_color(
+        PsyWindow* window,
+        float r,
+        float g,
+        float b,
+        float a
+        );
+
+/**
+ * @brief clears the window with the current clear color
+ *
+ * @param [in] window The window whose background we would like to change.
+ *
+ * return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+PSY_EXPORT int psy_window_clear(PsyWindow* window);
 
 /* *** class related functions *** */
 

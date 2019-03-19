@@ -209,6 +209,9 @@ static void window_swap_synced(void)
         return;
     psy_window_show(win);
 
+    // Set the clear color to gray
+    psy_window_set_clear_color(win, 0.5, 0.5, 0.5, 1.0);
+
     // Wait until the window is shown and exposed.
     while(!have_expose && !have_shown){
         SDL_WaitEvent(&event);
@@ -228,20 +231,29 @@ static void window_swap_synced(void)
 
     double* inter_frame_interval = malloc(N_FRAMES * sizeof(double));
     assert(inter_frame_interval);
-    //SDL_Delay(17);
-    glClearColor(1.0,1.0,1.0,1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
 
+    
+    // In order to stabelize, it might be neccessary to have a few window swaps.
+    for (int i = 0; i < 60; i++) {
+        psy_window_clear(win);
+        psy_window_swap(win);
+    }
+
+    // Set the clear color to white 
+    psy_window_set_clear_color(win, 1.0, 1.0, 1.0, 1.0);
     /* for some currently unknown reason swapping the window takes some time
      * to stabilize
      */
-    for (int i = 0; i < 60; i++)
+    for (int i = 0; i < 60; i++) {
+        psy_window_clear(win);
         psy_window_swap(win);
+    }
+    // Set the clear color to something
+    psy_window_set_clear_color(win, 0.3, 0.2, 0.8, 1.0);
     seconds = ((double) SDL_GetTicks()) / 1000.0;
 
     for (int i = 0; i < N_FRAMES; i++) {
-        glClearColor(1.0, 1.0, 1.0, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT);
+        psy_window_clear(win);
         psy_window_swap(win);
         double now = ((double)SDL_GetTicks())/1000.0;
         inter_frame_interval[i] = now - seconds;

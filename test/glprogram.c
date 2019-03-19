@@ -32,27 +32,27 @@ static int g_win_height;
 
 static const char* suite_name = "gl shader program";
 
-static const char* vert_shader_src =
-    "#version 330 core\n"
-    "\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "\n"
-    "void main()\n"
-    "{\n"
-    "    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\n"
-    ;
+//static const char* vert_shader_src =
+//    "#version 330 core\n"
+//    "\n"
+//    "layout (location = 0) in vec3 aPos;\n"
+//    "\n"
+//    "void main()\n"
+//    "{\n"
+//    "    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+//    "}\n"
+//    ;
 
-static const char* frag_shader_src =
-    "#version 330 core\n"
-    "\n"
-    "out vec4 FragColor;\n"
-    "\n"
-    "void main()\n"
-    "{\n"
-    "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-    "}\n"
-    ;
+//static const char* frag_shader_src =
+//    "#version 330 core\n"
+//    "\n"
+//    "out vec4 FragColor;\n"
+//    "\n"
+//    "void main()\n"
+//    "{\n"
+//    "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+//    "}\n"
+//    ;
 
 static const char* frag_shader_src_no_main =
     "#version 330 core\n"
@@ -73,36 +73,30 @@ static int setup(void)
         {.width = g_win_width, .height = g_win_height}
     };
     FILE* file = NULL;
+    int ret;
 
     const char* vertex_shader[] =  {
         "./gl_shaders/test_vertex_shader.vert",
-        "./test/gl_shaders/test_vertex_shader.vert"
+        "./test/gl_shaders/test_vertex_shader.vert",
+        "./gl_shaders/test_vertex_shader_es.vert",
+        "./test/gl_shaders/test_vertex_shader_es.vert"
     };
 
     const char* fragment_shader[] =  {
         "./gl_shaders/test_fragment_shader.frag",
-        "./test/gl_shaders/test_fragment_shader.frag"
+        "./test/gl_shaders/test_fragment_shader.frag",
+        "./gl_shaders/test_fragment_shader_es.frag",
+        "./test/gl_shaders/test_fragment_shader_es.frag"
     };
-
-    int ret = psy_window_create_rect(&g_win, rect, &error);
-    if (ret != SEE_SUCCESS)
+    
+    ret = psy_window_create_rect(&g_win, rect, &error);
+    if (ret != SEE_SUCCESS) {
+        fprintf(stderr, "Unable to open window: %s\n", see_error_msg(error));
         return 1;
-
-    psy_window_show(g_win);
-
-    for (size_t i = 0;
-         i < sizeof(vertex_shader)/sizeof(vertex_shader[0]);
-         i++
-         )
-    {
-        file = fopen(vertex_shader[i], "r");
-        if (file)
-            break;
     }
 
-    if (!file)
-        goto setup_failure;
-
+    psy_window_show(g_win);
+    
     ret = psy_shader_create(
         &g_vertex_shader,
         PSY_SHADER_VERTEX,
@@ -112,28 +106,7 @@ static int setup(void)
         fprintf(stderr, "%s", see_error_msg(SEE_ERROR(error)));
         goto setup_failure;
     }
-
-    ret = psy_shader_compile_file(g_vertex_shader, file, &error);
-    if (ret) {
-        fprintf(stderr, "%s", see_error_msg(SEE_ERROR(error)));
-        goto setup_failure;
-    }
-
-    fclose(file);
-    file = NULL;
-
-    for (size_t i = 0;
-         i < sizeof(fragment_shader)/sizeof(fragment_shader[0]);
-         i++)
-    {
-        file = fopen(fragment_shader[i], "r");
-        if (file)
-            break;
-    }
-
-    if (!file)
-        goto setup_failure;
-
+    
     ret = psy_shader_create(
         &g_fragment_shader,
         PSY_SHADER_FRAGMENT,
@@ -144,14 +117,58 @@ static int setup(void)
         goto setup_failure;
     }
 
-    ret = psy_shader_compile_file(g_fragment_shader, file, &error);
-    if (ret) {
-        fprintf(stderr, "%s", see_error_msg(SEE_ERROR(error)));
+
+    for (size_t i = 0;
+         i < sizeof(vertex_shader)/sizeof(vertex_shader[0]);
+         i++
+         )
+    {
+        file = fopen(vertex_shader[i], "r");
+        if (!file)
+            continue;
+
+        ret = psy_shader_compile_file(g_vertex_shader, file, &error);
+        fclose(file);
+        file = NULL;
+        if (ret) {
+            if (g_settings.verbose)
+                fprintf(stderr, "%s", see_error_msg(SEE_ERROR(error)));
+            see_object_decref(SEE_OBJECT(error));
+            error = NULL;
+        }
+        else
+            break;
+    }
+    if (!psy_shader_compiled(g_vertex_shader)) {
+        fprintf(stderr, "Unable to compile a vertex shader\n");
         goto setup_failure;
     }
 
-    fclose(file);
-    file = NULL;
+    for (size_t i = 0;
+         i < sizeof(fragment_shader)/sizeof(fragment_shader[0]);
+         i++)
+    {
+        file = fopen(fragment_shader[i], "r");
+        if (!file)
+            continue;
+
+        ret = psy_shader_compile_file(g_fragment_shader, file, &error);
+        fclose(file);
+        file = NULL;
+        if (ret) {
+            if (g_settings.verbose)
+                fprintf(stderr, "%s", see_error_msg(SEE_ERROR(error)));
+            see_object_decref(SEE_OBJECT(error));
+            error = NULL;
+        }
+        else
+            break;
+    }
+
+    if (!psy_shader_compiled(g_fragment_shader)) {
+        fprintf(stderr, "Unable to compile a fragment shader\n");
+        goto setup_failure;
+    }
 
     return 0;
 
@@ -277,6 +294,25 @@ void gl_shader_program_src(void)
     int ret;
     PsyShaderProgram* program = NULL;
     SeeError*         error = NULL;
+    char vertex_source[BUFSIZ];
+    char fragment_source[BUFSIZ];
+
+    ret = psy_shader_source(
+            g_vertex_shader,
+            vertex_source,
+            sizeof(vertex_source)
+            );
+    if (ret)
+        goto gl_shader_program_src_error;
+    ret = psy_shader_source(
+            g_fragment_shader,
+            fragment_source,
+            sizeof(fragment_source)
+            );
+    if (ret)
+        goto gl_shader_program_src_error;
+
+
     ret = psy_shader_program_create(&program, NULL, NULL, &error);
 
     CU_ASSERT_PTR_NOT_EQUAL(program, NULL);
@@ -286,11 +322,11 @@ void gl_shader_program_src(void)
         return;
     }
 
-    ret = psy_shader_program_add_vertex_src(program, vert_shader_src, &error);
+    ret = psy_shader_program_add_vertex_src(program, vertex_source, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     if (ret)
         goto gl_shader_program_src_error;
-    ret = psy_shader_program_add_fragment_src(program, frag_shader_src, &error);
+    ret = psy_shader_program_add_fragment_src(program, fragment_source, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     if (ret)
         goto gl_shader_program_src_error;
@@ -313,6 +349,7 @@ void gl_shader_program_failure(void)
     int ret;
     PsyShaderProgram* program = NULL;
     SeeError*         error = NULL;
+    char vertex_source[BUFSIZ];
     ret = psy_shader_program_create(&program, NULL, NULL, &error);
 
     CU_ASSERT_PTR_NOT_EQUAL(program, NULL);
@@ -320,7 +357,15 @@ void gl_shader_program_failure(void)
     if (ret != SEE_SUCCESS)
         goto gl_shader_program_src_error;
 
-    ret = psy_shader_program_add_vertex_src(program, vert_shader_src, &error);
+    ret = psy_shader_source(
+            g_vertex_shader,
+            vertex_source,
+            sizeof(vertex_source)
+            );
+    if (ret != SEE_SUCCESS)
+        goto gl_shader_program_src_error;
+
+    ret = psy_shader_program_add_vertex_src(program, vertex_source, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     if (ret)
         goto gl_shader_program_src_error;

@@ -48,7 +48,25 @@ const char* g_default_window_name = "PsyWindow default name";
 struct _WindowPrivate {
     SDL_Window*     pwin;
     SDL_GLContext   context;
+    float           clear_color[4];
 };
+
+// Set attributes for OpenGL for Embedded Systems
+static void set_attributes_gles()
+{
+    SDL_GL_SetAttribute(
+            SDL_GL_CONTEXT_PROFILE_MASK,
+            SDL_GL_CONTEXT_PROFILE_ES
+            );
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+}
 
 /* **** dynamically linked window functions **** */
 
@@ -68,6 +86,10 @@ window_init(PsyWindow*              win,
 
     const SeeObjectClass* obj_cls = SEE_OBJECT_CLASS(cls);
     obj_cls->object_init(SEE_OBJECT(win), obj_cls);
+
+#if defined(RASPBERRY_PI_BUILD)
+    set_attributes_gles();
+#endif
 
     priv = calloc(1, sizeof(WindowPrivate));
     if (!priv) {
@@ -270,6 +292,28 @@ window_id(const PsyWindow* window, uint32_t *out)
     return SEE_SUCCESS;
 }
 
+static int
+window_clear_color(PsyWindow* window, float r, float g, float b, float a)
+{
+    assert(window && window->window_priv);
+    window->window_priv->clear_color[0] = r;
+    window->window_priv->clear_color[1] = g;
+    window->window_priv->clear_color[2] = b;
+    window->window_priv->clear_color[3] = a;
+
+    return SEE_SUCCESS;
+}
+
+static int
+window_clear(PsyWindow* window)
+{
+    assert(window && window->window_priv);
+    float *c = window->window_priv->clear_color;
+    glClearColor(c[0],c[1],c[2],c[3]);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    return SEE_SUCCESS;
+}
 
 /* **** public functions **** */
 
@@ -467,6 +511,39 @@ psy_window_id(const PsyWindow* win, uint32_t* id)
     return win_cls->window_id(win, id);
 }
 
+int
+psy_window_set_clear_color(
+        PsyWindow* window,
+        float r,
+        float g,
+        float b,
+        float a
+        )
+{
+    const PsyWindowClass* win_cls;
+    if (!window)
+        return SEE_INVALID_ARGUMENT;
+    
+    win_cls = PSY_WINDOW_GET_CLASS(window);
+
+    return win_cls->clear_color(window, r, g, b, a);
+}
+
+int
+psy_window_clear(
+        PsyWindow* window
+        )
+{
+    const PsyWindowClass* win_cls;
+    if (!window)
+        return SEE_INVALID_ARGUMENT;
+    
+    win_cls = PSY_WINDOW_GET_CLASS(window);
+
+    return win_cls->clear(window);
+}
+
+
 /* **** Class management **** */
 
 static PsyWindowClass* g_cls;
@@ -496,6 +573,8 @@ psy_window_class_init(SeeObjectClass* new_cls)
     cls->get_size       = window_get_size;
     cls->set_size       = window_set_size;
     cls->window_id      = window_id;
+    cls->clear_color    = window_clear_color;
+    cls->clear          = window_clear;
 
     return ret;
 }
