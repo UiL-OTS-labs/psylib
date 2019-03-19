@@ -1,8 +1,12 @@
+#version 100
 
-layout (location = 0) in vec3 aPos;
+precision mediump float;
+
+attribute vec3 a_vertex;
 
 void main()
 {
+    vec3 aPos = a_vertex;
     gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
 }
 

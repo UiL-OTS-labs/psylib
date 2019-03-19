@@ -100,7 +100,13 @@ struct _PsyShaderClass {
                                 SeeError** error
                                 );
 
-    int (*shader_compiled)(const PsyShader* shader);
+    int (*shader_compiled)      (const PsyShader* shader);
+
+    int (*shader_size)          (const PsyShader* shader, size_t* size);
+    int (*shader_source)        (const PsyShader* shader,
+                                 char* buffer,
+                                 size_t bufsiz
+                                 );
 };
 
 /* **** function style macro casts **** */
@@ -229,6 +235,27 @@ psy_shader_compiled(const PsyShader* shader);
  */
 PSY_EXPORT const PsyShaderClass*
 psy_shader_class();
+
+/**
+ * \brief Get the required size to store the source of a shader.
+ */
+PSY_EXPORT int
+psy_shader_size (const PsyShader* shader, size_t* out);
+
+/**
+ * \brief Obtain the source of a shader.
+ *
+ * @param [in]  shader the compiled shader whose source we would like to obtain
+ * @param [out] buffer the buffer provided by the client we can write to.
+ * @param [in]  bufsiz the size of the buffer provided by the client.
+ *
+ * @return SEE_SUCCESS or another error.
+ */
+PSY_EXPORT int
+psy_shader_source(const PsyShader* shader,
+                                 char* buffer,
+                                 size_t bufsiz
+                                 );
 
 /* **** class initialization functions **** */
 

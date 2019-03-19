@@ -35,6 +35,16 @@ static const char* vert_shader_src =
     "}\n"
     ;
 
+
+static const char* vert_shader_src_es =
+    "layout (location = 0) in vec3 aPos;\n"
+    "\n"
+    "void main()\n"
+    "{\n"
+    "    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "}\n"
+    ;
+
 static const char* vert_shader_failure_src =
     "#version 330 core\n"
     "'n"
@@ -127,27 +137,43 @@ static void gl_shader_compile(void)
     GLuint id;
     PsyShader* shader = NULL;
     SeeError*   error = NULL;
+    int compiled_a_shader = 0;
 
     ret = psy_shader_create(&shader, PSY_SHADER_VERTEX, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     if (ret != SEE_SUCCESS) {
-        fprintf(stderr, "Error compiling shader: %s\n",
+        fprintf(stderr, "Error creating shader: %s\n",
             see_error_msg(error)
             );
         see_object_decref(SEE_OBJECT(error));
         return;
     }
 
-    ret = psy_shader_compile(shader, vert_shader_src, &error);
-    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
-    if (ret != SEE_SUCCESS) {
-        fprintf(stderr, "Error compiling shader: %s\n",
-            see_error_msg(error)
-            );
-        see_object_decref(SEE_OBJECT(error));
-        see_object_decref(SEE_OBJECT(shader));
-        return;
+    const char* shaders[] =  {
+        vert_shader_src,
+        vert_shader_src_es
+    };
+
+    for (size_t i = 0; i < sizeof(shaders)/sizeof(shaders[0]); i++) {
+
+        ret = psy_shader_compile(shader, shaders[i], &error);
+
+        if (ret == SEE_SUCCESS) {
+            compiled_a_shader = 1;
+            break;
+        }
+        else {
+            if (g_settings.verbose) {
+                fprintf(stderr, "Error compiling shader: %s\n",
+                    see_error_msg(error)
+                    );
+            }
+            see_object_decref(SEE_OBJECT(error));
+            error = NULL;
+            return;
+        }
     }
+    CU_ASSERT(compiled_a_shader);
 
     psy_shader_id(shader, &id);
     CU_ASSERT_NOT_EQUAL(id, 0);
@@ -158,103 +184,102 @@ static void gl_shader_compile(void)
 static void gl_shader_compile_file(void)
 {
     int ret;
-    GLuint id;
     PsyShader* shader = NULL;
     SeeError*   error = NULL;
     FILE* file = NULL;
+
+    // One of these should succeed mind your working directory...
     const char* locations[] = {
         "./gl_shaders/test_vertex_shader.vert",
-        "./test/gl_shaders/test_vertex_shader.vert"
+        "./test/gl_shaders/test_vertex_shader.vert",
+        "./gl_shaders/test_vertex_shader_es.vert",
+        "./test/gl_shaders/test_vertex_shader_es.vert"
     };
+
+    ret = psy_shader_create(&shader, PSY_SHADER_VERTEX, &error);
+    if(ret != SEE_SUCCESS) {
+        CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+        return;
+    }
 
     for (size_t i = 0; i < sizeof(locations)/sizeof(locations[0]); i++) {
         const char* file_name = locations[i];
+
         file = fopen(file_name, "r");
-        if (file)
-            break;
-    }
-    
-    CU_ASSERT_PTR_NOT_EQUAL(file, NULL);
-    if (!file)
-        return;
+        if (!file)
+            continue;
 
-    ret = psy_shader_create(&shader, PSY_SHADER_VERTEX, &error);
-    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
-    if (ret) {
+        ret = psy_shader_compile_file(shader, file, &error);
         fclose(file);
-        return;
+        if (ret != SEE_SUCCESS) {
+            if (g_settings.verbose) {
+                fprintf(stderr, "%s\n",
+                        see_error_msg(error)
+                        );
+            }
+            see_object_decref(SEE_OBJECT(error));
+            error = NULL;
+        }
+        else {
+            break;
+        }
     }
 
-    ret = psy_shader_compile_file(shader, file, &error);
-    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
-    if (ret != SEE_SUCCESS) {
-        fprintf(stderr, "%s\n",
-                see_error_msg(error)
-        );
-        see_object_decref(SEE_OBJECT(error));
-        see_object_decref(SEE_OBJECT(shader));
-        return;
-    }
     CU_ASSERT(psy_shader_compiled(shader));
-    psy_shader_id(shader, &id);
-    CU_ASSERT_NOT_EQUAL(id, 0);
 
     see_object_decref(SEE_OBJECT(shader));
-
-    fclose(file);
 }
 
 static void gl_shader_compile_fragment_file(void)
 {
     int ret;
-    GLuint id;
     PsyShader* shader = NULL;
     SeeError*   error = NULL;
     FILE* file = NULL;
+
     const char* locations[] = {
         "./gl_shaders/test_fragment_shader.frag",
         "./test/gl_shaders/test_fragment_shader.frag"
+        "./gl_shaders/test_fragment_shader_es.frag",
+        "./test/gl_shaders/test_fragment_shader_es.frag"
     };
+
+    ret = psy_shader_create(&shader, PSY_SHADER_FRAGMENT, &error);
+    if (ret != SEE_SUCCESS) {
+        CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+        return;
+    }
 
     for (size_t i = 0; i < sizeof(locations)/sizeof(locations[0]); i++) {
         const char* file_name = locations[i];
         file = fopen(file_name, "r");
-        if (file)
-            break;
-    }
+        if (!file)
+            continue;
 
-    CU_ASSERT_PTR_NOT_EQUAL(file, NULL);
-    if (!file)
-        return;
-
-    ret = psy_shader_create(&shader, PSY_SHADER_FRAGMENT, &error);
-    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
-    if (ret) {
+        ret = psy_shader_compile_file(shader, file, &error);
         fclose(file);
-        return;
+        if (ret != SEE_SUCCESS) {
+            if (g_settings.verbose) {
+                fprintf(stderr, "%s\n",
+                        see_error_msg(error)
+                );
+            }
+            see_object_decref(SEE_OBJECT(error));
+            error = NULL;
+        }
+        else {
+            break;
+        }
     }
 
-    ret = psy_shader_compile_file(shader, file, &error);
-    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
-    if (ret != SEE_SUCCESS) {
-        fprintf(stderr, "%s\n",
-                see_error_msg(error)
-        );
-        see_object_decref(SEE_OBJECT(error));
-        see_object_decref(SEE_OBJECT(shader));
-        return;
-    }
     CU_ASSERT(psy_shader_compiled(shader));
-    psy_shader_id(shader, &id);
-    CU_ASSERT_NOT_EQUAL(id, 0);
+    
     psy_shader_t type;
     psy_shader_type(shader, &type);
     CU_ASSERT_EQUAL(type, PSY_SHADER_FRAGMENT);
 
 
     see_object_decref(SEE_OBJECT(shader));
-
-    fclose(file);
 }
 
 
@@ -268,9 +293,11 @@ static void gl_shader_compile_failure(void)
     ret = psy_shader_create(&shader, PSY_SHADER_VERTEX, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     if (ret != SEE_SUCCESS) {
-        fprintf(stderr, "Error compiling shader: %s\n",
-            see_error_msg(error)
-            );
+        if (g_settings.verbose) {
+            fprintf(stderr, "Error creating shader: %s\n",
+                see_error_msg(error)
+                );
+        }
         see_object_decref(SEE_OBJECT(error));
         return;
     }
@@ -285,7 +312,6 @@ static void gl_shader_compile_failure(void)
     see_object_decref(SEE_OBJECT(shader));
     see_object_decref(SEE_OBJECT(error));
 }
-
 
 
 int add_glshader_suite()
