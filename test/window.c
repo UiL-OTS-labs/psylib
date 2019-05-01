@@ -16,7 +16,8 @@
  */
 
 #include <CUnit/CUnit.h>
-#include <SeeObject.h>
+#include <SeeObject-0.0/SeeObject.h>
+#include <SeeObject-0.0/Clock.h>
 #include <SDL2/SDL.h>
 #include <assert.h>
 
@@ -115,7 +116,7 @@ static void window_create_rect(void)
     if (ret) {
         fprintf(stderr, "%s:%s:%s\n",
                 __FILE__,
-                __FUNCTION__,
+                __func__,
                 see_error_msg(error)
                );
         goto fail;
@@ -180,8 +181,10 @@ static void window_swap_synced(void)
 {
     PsyWindow* win = NULL;
     SeeError* error= NULL;
+    SeeClock* clk  = NULL;
+    SeeTimePoint*  tzero = NULL, *tnow = NULL;
+    SeeDuration* dur = NULL;
     int x = g_win_x, y = g_win_y, width = g_win_width, height = g_win_height;
-    double seconds;
     int ret, n;
     const int N_FRAMES = 60;
     double display_dur;
@@ -192,6 +195,13 @@ static void window_swap_synced(void)
         {x,     y},
         {width, height}
     };
+
+    ret = see_clock_new(&clk, &error);
+    if (ret != SEE_SUCCESS) {
+        fprintf(stderr, "Unable to create a new clock: %s\n",
+            error != 0 ? see_error_msg(error) : "Unknown");
+        goto fail;
+    }
 
     n = nth_display_for_position(r.pos, 0);
     SDL_GetCurrentDisplayMode(n, &mode);
@@ -233,7 +243,7 @@ static void window_swap_synced(void)
     assert(inter_frame_interval);
 
     
-    // In order to stabelize, it might be neccessary to have a few window swaps.
+    // In order to stabilize, it might be necessary to have a few window swaps.
     for (int i = 0; i < 60; i++) {
         psy_window_clear(win);
         psy_window_swap(win);
@@ -248,16 +258,20 @@ static void window_swap_synced(void)
         psy_window_clear(win);
         psy_window_swap(win);
     }
-    // Set the clear color to something
+    // Set the clear color to something blueish
     psy_window_set_clear_color(win, 0.3, 0.2, 0.8, 1.0);
-    seconds = ((double) SDL_GetTicks()) / 1000.0;
+    ret = see_clock_time(clk, &tzero, &error);
+    assert(ret == SEE_SUCCESS);
 
     for (int i = 0; i < N_FRAMES; i++) {
         psy_window_clear(win);
         psy_window_swap(win);
-        double now = ((double)SDL_GetTicks())/1000.0;
-        inter_frame_interval[i] = now - seconds;
-        seconds = now;
+        ret = see_clock_time(clk, &tnow, &error);
+        assert(ret == SEE_SUCCESS);
+        ret = see_time_point_sub(tnow, tzero, &dur, &error);
+        assert(ret == SEE_SUCCESS);
+        inter_frame_interval[i] = see_duration_seconds_f(dur);
+        see_time_point_set(tzero, tnow, &error);
     }
 
     int n_missed = 0;
@@ -288,8 +302,13 @@ static void window_swap_synced(void)
             );
     }
 
+fail:
     free(inter_frame_interval);
     see_object_decref(SEE_OBJECT(win));
+    see_object_decref(SEE_OBJECT(clk));
+    see_object_decref(SEE_OBJECT(tzero));
+    see_object_decref(SEE_OBJECT(tnow));
+    see_object_decref(SEE_OBJECT(dur));
 }
 
 static int rects_equal(PsyRect* r1, PsyRect* r2)
