@@ -91,6 +91,7 @@ int psy_error_class_init(SeeObjectClass* new_cls)
 
     /*Override SeeObject*/
     new_cls->init = init;
+    new_cls->name = "PsyError";
 
     /* Override parent functions.*/
     see_error_class->set_msg    = error_msg_set;

@@ -556,6 +556,7 @@ psy_window_class_init(SeeObjectClass* new_cls)
     // Override parent init and destroy to allocate/free window private
     new_cls->init       = init;
     new_cls->destroy    = window_destroy;
+    new_cls->name       = "PsyWindow";
 
     // override virtual members
     PsyWindowClass* cls = (PsyWindowClass*)new_cls;

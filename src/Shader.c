@@ -181,7 +181,7 @@ shader_compile_file(PsyShader* shader, FILE* file, SeeError** error)
         goto shader_compile_file_error;
     }
 
-    string = see_dynamic_array_get(array, 0, error);
+    string = see_dynamic_array_data(array);
     ret = cls->shader_compile(shader, string, error);
 
     //cleanup and exit
@@ -340,6 +340,7 @@ static int psy_shader_class_init(SeeObjectClass* new_cls) {
     new_cls->init = init;
     // We might need to free the shader on object destruction.
     new_cls->destroy = shader_destroy;
+    new_cls->name    = "PsyShader";
 
     /* Set the function pointers of the own class here */
     PsyShaderClass* cls = (PsyShaderClass*) new_cls;
